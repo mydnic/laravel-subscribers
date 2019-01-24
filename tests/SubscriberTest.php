@@ -2,13 +2,13 @@
 
 namespace Mydnic\Subscribers\Test;
 
+use Mydnic\Subscribers\Subscriber;
 use Illuminate\Support\Facades\Event;
+use Mydnic\Subscribers\Events\SubscriberCreated;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Orchestra\Testbench\Http\Middleware\VerifyCsrfToken;
-use Mydnic\Subscribers\Events\NewSubscriber;
-use Mydnic\Subscribers\SubscriberCreated;
 
-class PostSubscriberTest extends TestCase
+class SubscriberTest extends TestCase
 {
     /** @test */
     public function it_saves_the_subscriber()
@@ -19,15 +19,10 @@ class PostSubscriberTest extends TestCase
             'email' => 'some@email.com',
         ]);
 
-        // Help debug Request
-        // dd($request->original);
-
         $request->assertStatus(201);
 
-        $subscriber = Feedback::first();
-        $this->assertEquals(false, $subscriber->reviewed);
-        $this->assertEquals('like', $subscriber->type);
-        $this->assertEquals('test subscriber message', $subscriber->message);
+        $subscriber = Subscriber::first();
+        $this->assertEquals('some@email.com', $subscriber->email);
 
         Event::assertDispatched(SubscriberCreated::class, function ($e) use ($subscriber) {
             return $e->subscriber->id === $subscriber->id;
@@ -43,6 +38,6 @@ class PostSubscriberTest extends TestCase
             'email' => 'some@email.com',
         ]);
 
-        dd($request->original);
+        $this->assertEquals(1, Subscriber::count());
     }
 }

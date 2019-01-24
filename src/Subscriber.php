@@ -3,6 +3,8 @@
 namespace Mydnic\Subscribers;
 
 use Illuminate\Database\Eloquent\Model;
+use Mydnic\Subscribers\Events\SubscriberCreated;
+use Mydnic\Subscribers\Events\SubscriberDeleted;
 
 class Subscriber extends Model
 {
@@ -13,7 +15,7 @@ class Subscriber extends Model
     ];
 
     protected $dispatchesEvents = [
-        'saved' => SubscriberCreated::class,
+        'created' => SubscriberCreated::class,
         'deleted' => SubscriberDeleted::class,
     ];
 }
