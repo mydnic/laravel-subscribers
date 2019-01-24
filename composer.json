@@ -1,0 +1,47 @@
+{
+    "name": "mydnic/laravel-subscribers",
+    "description": "Easily Manage Internal Newsletter Subscribers in Laravel",
+    "keywords": [
+        "laravel",
+        "customer",
+        "feedback"
+    ],
+    "license": "MIT",
+    "homepage": "https://github.com/mydnic/laravel-subscribers",
+    "authors": [
+        {
+            "name": "Clément Rigo",
+            "email": "rigoclement@mydnic.be"
+        }
+    ],
+    "require": {
+        "php": "^7.1",
+        "laravel/framework": "~5.5.0|~5.6.0|~5.7.0",
+        "spatie/once": "^2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.4",
+        "orchestra/testbench": "~3.5.0|~3.6.0|~3.7.0",
+        "mockery/mockery": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mydnic\\Subscribers\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mydnic\\Subscribers\\Test\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mydnic\\Subscribers\\SubscribersServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    }
+}
