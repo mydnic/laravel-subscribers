@@ -11,7 +11,7 @@ use Orchestra\Testbench\Http\Middleware\VerifyCsrfToken;
 class SubscriberTest extends TestCase
 {
     /** @test */
-    public function it_saves_the_subscriber()
+    public function it_saves_the_subscriber_via_api()
     {
         Event::fake();
 
@@ -23,6 +23,25 @@ class SubscriberTest extends TestCase
 
         $subscriber = Subscriber::first();
         $this->assertEquals('some@email.com', $subscriber->email);
+
+        Event::assertDispatched(SubscriberCreated::class, function ($e) use ($subscriber) {
+            return $e->subscriber->id === $subscriber->id;
+        });
+    }
+
+    /** @test */
+    public function it_saves_the_subscriber_via_web()
+    {
+        Event::fake();
+
+        $request = $this->post('/subscribers/subscriber', [
+            'email' => 'someweb@email.com',
+        ]);
+
+        $request->assertStatus(302);
+
+        $subscriber = Subscriber::first();
+        $this->assertEquals('someweb@email.com', $subscriber->email);
 
         Event::assertDispatched(SubscriberCreated::class, function ($e) use ($subscriber) {
             return $e->subscriber->id === $subscriber->id;

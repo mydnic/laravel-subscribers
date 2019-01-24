@@ -2,4 +2,4 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::post('subscriber', 'SubscriberController')->name('subscriber.store');
+Route::post('subscriber', 'SubscriberController')->name('store');
