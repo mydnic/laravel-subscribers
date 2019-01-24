@@ -5,7 +5,7 @@ namespace Mydnic\Subscribers\Http\Requests;
 use Mydnic\Subscribers\Subscriber;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreSubscriberRequest extends FormRequest
+class DeleteSubscriberRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -21,8 +21,6 @@ class StoreSubscriberRequest extends FormRequest
 
     public function subscriber()
     {
-        return once(function () {
-            return Subscriber::where('email', $this->input('email'))->first();
-        });
+        return Subscriber::where('email', $this->input('email'))->firstOrFail();
     }
 }

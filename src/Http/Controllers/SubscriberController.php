@@ -17,7 +17,7 @@ class SubscriberController extends Controller
     {
         Subscriber::create($request->all());
 
-        return back();
+        return back()->with('subscribed', 'You are successfully subscribed to our list!');
     }
 
     public function delete(DeleteSubscriberRequest $request)

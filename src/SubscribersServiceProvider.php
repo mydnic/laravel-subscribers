@@ -30,11 +30,11 @@ class SubscribersServiceProvider extends ServiceProvider
     {
         $this->publishes([
             __DIR__ . '/../resources/js/components' => resource_path('js/components/Subscribers'),
-        ], 'kustomer-vue-component');
+        ], 'subscribers-vue-component');
 
         $this->publishes([
             __DIR__ . '/../database/migrations' => database_path('migrations'),
-        ], 'kustomer-vue-component');
+        ], 'subscribers-migrations');
     }
 
     /**
