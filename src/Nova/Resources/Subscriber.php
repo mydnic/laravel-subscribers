@@ -1,6 +1,6 @@
 <?php
 
-namespace Mydnic\Subscribers\NovaResources;
+namespace Mydnic\Subscribers\Nova\Resources;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
