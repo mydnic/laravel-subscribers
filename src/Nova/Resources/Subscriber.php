@@ -2,11 +2,12 @@
 
 namespace Mydnic\Subscribers\Nova\Resources;
 
-use Illuminate\Http\Request;
+use App\Nova\Resource;
 use Laravel\Nova\Fields\ID;
+use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
-use App\Nova\Resource;
+use Mydnic\Subscribers\Nova\Metrics\NewSubscribers;
 
 class Subscriber extends Resource
 {
@@ -61,7 +62,7 @@ class Subscriber extends Resource
     public function cards(Request $request)
     {
         return [
-            new Metrics\NewSubscribers,
+            new NewSubscribers,
         ];
     }
 
