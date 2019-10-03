@@ -39,7 +39,8 @@ export default {
             this.isLoading = true;
             this.errors = [];
             this.success = false;
-            axios.post('/api/subscriber', {
+
+            axios.post('/subscribers-api/subscriber', {
                 email: this.email
             })
             .then(response => {
