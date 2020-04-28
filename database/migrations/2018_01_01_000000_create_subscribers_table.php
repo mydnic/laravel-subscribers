@@ -17,6 +17,8 @@ class CreateSubscribersTable extends Migration
             $table->increments('id');
             $table->string('email')->unique();
             $table->timestamps();
+
+            $table->timestamp('email_verified_at')->nullable();
         });
     }
 
@@ -27,6 +29,6 @@ class CreateSubscribersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('feedbacks');
+        Schema::dropIfExists('subscribers');
     }
 }
