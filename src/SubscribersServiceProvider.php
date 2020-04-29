@@ -35,6 +35,10 @@ class SubscribersServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../database/migrations' => database_path('migrations'),
         ], 'subscribers-migrations');
+
+        $this->publishes([
+            __DIR__.'/../config/laravel-subscribers.php' => config_path('laravel-subscribers.php'),
+        ], 'subscribers-config');
     }
 
     /**
@@ -89,8 +93,8 @@ class SubscribersServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // $this->commands([
-        //     Console\PublishCommand::class,
-        // ]);
+        if (! $this->app->configurationIsCached()) {
+            $this->mergeConfigFrom(__DIR__.'/../config/laravel-subscribers.php', 'laravel-subscribers');
+        }
     }
 }
