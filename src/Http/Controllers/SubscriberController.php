@@ -24,11 +24,11 @@ class SubscriberController extends Controller
         if (config('laravel-subscribers.verify')) {
             $subscriber->sendEmailVerificationNotification();
             return redirect()->route(config('laravel-subscribers.redirect_url'))
-                ->with('subscribed', 'Please verify your email address!');
+                ->with('subscribed', __('Please verify your email address!'));
         }
 
         return redirect()->route(config('laravel-subscribers.redirect_url'))
-            ->with('subscribed', 'You are successfully subscribed to our list!');
+            ->with('subscribed', __('You are successfully subscribed to our list!'));
     }
 
     public function delete(DeleteSubscriberRequest $request)
@@ -60,6 +60,7 @@ class SubscriberController extends Controller
 
         return $request->wantsJson()
             ? new Response('', 204)
-            : redirect()->route(config('laravel-subscribers.redirect_url'));
+            : redirect()->route(config('laravel-subscribers.redirect_url'))->with('verified', __('You are successfully subscribed to our list!'));
+
     }
 }
