@@ -61,6 +61,5 @@ class SubscriberController extends Controller
         return $request->wantsJson()
             ? new Response('', 204)
             : redirect()->route(config('laravel-subscribers.redirect_url'))->with('verified', __('You are successfully subscribed to our list!'));
-
     }
 }
