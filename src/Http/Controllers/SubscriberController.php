@@ -21,13 +21,14 @@ class SubscriberController extends Controller
     {
         $subscriber = Subscriber::create($request->all());
 
-        if(config('laravel-subscribers.verify'))
-        {
+        if (config('laravel-subscribers.verify')) {
             $subscriber->sendEmailVerificationNotification();
-            return back()->with('subscribed', 'Please verify your email address!');
+            return redirect()->route(config('laravel-subscribers.redirect_url'))
+                ->with('subscribed', 'Please verify your email address!');
         }
 
-        return back()->with('subscribed', 'You are successfully subscribed to our list!');
+        return redirect()->route(config('laravel-subscribers.redirect_url'))
+            ->with('subscribed', 'You are successfully subscribed to our list!');
     }
 
     public function delete(DeleteSubscriberRequest $request)
@@ -39,11 +40,11 @@ class SubscriberController extends Controller
     public function verify(VerifySubscriberRequest $request)
     {
         $subscriber = Subscriber::find($request->id);
-        if (! hash_equals((string) $request->route('id'), (string) $subscriber->getKey())) {
+        if (!hash_equals((string) $request->route('id'), (string) $subscriber->getKey())) {
             throw new SubscriberVerificationException;
         }
 
-        if (! hash_equals((string) $request->route('hash'), sha1($subscriber->getEmailForVerification()))) {
+        if (!hash_equals((string) $request->route('hash'), sha1($subscriber->getEmailForVerification()))) {
             throw new SubscriberVerificationException;
         }
 
