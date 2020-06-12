@@ -49,11 +49,32 @@ class SubscriberVerifyEmail extends Notification
 
         Log::info('sending new email');
         Log::info(get_class($notifiable));
-        return (new MailMessage)
-            ->subject(Lang::get('Verify Email Address'))
-            ->line(Lang::get('Please click the button below to verify your email address.'))
-            ->action(Lang::get('Verify Email Address'), $verificationUrl)
-            ->line(Lang::get('If you did not sign up for our newsletter, no further action is required.'));
+
+        $mail = new MailMessage();
+
+        $mail->subject(Lang::get(config('laravel-subscribers.mail.verify.subject','Verify Email Address')));
+        $mail->greeting(Lang::get(config('laravel-subscribers.mail.verify.greeting','Hello!')));
+
+        if (!empty(config('laravel-subscribers.mail.verify.content'))) {
+            foreach (config('laravel-subscribers.mail.verify.content') as $value) {
+                $mail->line(Lang::get($value));
+            }
+        } else {
+            $mail->line(Lang::get('Please click the button below to verify your email address.'));
+        }
+
+        $mail->action(Lang::get(config('laravel-subscribers.mail.verify.action','Verify Email Address')),$verificationUrl);
+
+        if (!empty(config('laravel-subscribers.mail.verify.footer'))) {
+            foreach (config('laravel-subscribers.mail.verify.footer') as $value) {
+                $mail->line(Lang::get($value));
+            }
+        } else {
+            $mail->line(Lang::get('If you did not sign up for our newsletter, no further action is required.'));
+        }
+
+        return $mail;
+
     }
 
     /**
