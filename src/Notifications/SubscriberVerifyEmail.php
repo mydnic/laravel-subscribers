@@ -47,9 +47,6 @@ class SubscriberVerifyEmail extends Notification
     {
         $verificationUrl = $this->verificationUrl($notifiable);
 
-        Log::info('sending new email');
-        Log::info(get_class($notifiable));
-
         $mail = new MailMessage();
 
         $mail->subject(Lang::get(config('laravel-subscribers.mail.verify.subject','Verify Email Address')));
@@ -98,7 +95,6 @@ class SubscriberVerifyEmail extends Notification
      */
     protected function verificationUrl($notifiable)
     {
-        Log::info('id: ' . $notifiable->getKey());
         return URL::temporarySignedRoute(
             'subscribers.verify',
             Carbon::now()->addMinutes(60),
