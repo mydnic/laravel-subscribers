@@ -10,6 +10,7 @@ return [
      */
     'mail' => [
         'verify' => [
+            'expiration' => 60, // in minutes
             'subject' => 'Verify Email Address',
             'greeting' => 'Hello!',
             'content' => [

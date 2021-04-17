@@ -49,8 +49,8 @@ class SubscriberVerifyEmail extends Notification
 
         $mail = new MailMessage();
 
-        $mail->subject(Lang::get(config('laravel-subscribers.mail.verify.subject','Verify Email Address')));
-        $mail->greeting(Lang::get(config('laravel-subscribers.mail.verify.greeting','Hello!')));
+        $mail->subject(Lang::get(config('laravel-subscribers.mail.verify.subject', 'Verify Email Address')));
+        $mail->greeting(Lang::get(config('laravel-subscribers.mail.verify.greeting', 'Hello!')));
 
         if (!empty(config('laravel-subscribers.mail.verify.content'))) {
             foreach (config('laravel-subscribers.mail.verify.content') as $value) {
@@ -60,7 +60,7 @@ class SubscriberVerifyEmail extends Notification
             $mail->line(Lang::get('Please click the button below to verify your email address.'));
         }
 
-        $mail->action(Lang::get(config('laravel-subscribers.mail.verify.action','Verify Email Address')),$verificationUrl);
+        $mail->action(Lang::get(config('laravel-subscribers.mail.verify.action', 'Verify Email Address')), $verificationUrl);
 
         if (!empty(config('laravel-subscribers.mail.verify.footer'))) {
             foreach (config('laravel-subscribers.mail.verify.footer') as $value) {
@@ -71,7 +71,6 @@ class SubscriberVerifyEmail extends Notification
         }
 
         return $mail;
-
     }
 
     /**
@@ -97,7 +96,7 @@ class SubscriberVerifyEmail extends Notification
     {
         return URL::temporarySignedRoute(
             'subscribers.verify',
-            Carbon::now()->addMinutes(60),
+            Carbon::now()->addMinutes(config('laravel-subscribers.mail.verify.expiration')),
             [
                 'id' => $notifiable->getKey(),
                 'hash' => sha1($notifiable->getEmailForVerification()),
