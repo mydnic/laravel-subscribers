@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "03ba5bbbc3fe4d1277c957a8735f06ae",
+    "content-hash": "03f3782465dbb46f86c6cdb716095b0c",
     "packages": [
         {
             "name": "doctrine/inflector",
@@ -315,16 +315,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v6.20.24",
+            "version": "v6.20.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "addc44fce390c783b2dee0d617300dce97e895f4"
+                "reference": "d6f8b14c09c324fa81e028231e89a2a8f4907b2f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/addc44fce390c783b2dee0d617300dce97e895f4",
-                "reference": "addc44fce390c783b2dee0d617300dce97e895f4",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/d6f8b14c09c324fa81e028231e89a2a8f4907b2f",
+                "reference": "d6f8b14c09c324fa81e028231e89a2a8f4907b2f",
                 "shasum": ""
             },
             "require": {
@@ -464,7 +464,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2021-04-20T13:46:19+00:00"
+            "time": "2021-04-27T14:22:09+00:00"
         },
         {
             "name": "league/commonmark",
