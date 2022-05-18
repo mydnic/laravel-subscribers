@@ -49,3 +49,26 @@ Simply provide this link to your subscribers:
 ```
 
 This will generate a link like `/subscribers/delete?email=email@example.com`
+
+### Subscribe manually from the user model
+
+Alternatively, you can manage the subscription of a user from the user model.
+
+In order to do that you will need to add the `CanSubscribe` trait
+
+```php
+use Mydnic\Subscribers\Traits\CanSubscribe;
+
+class User extends Model
+{
+    use CanSubscribe;
+}
+```
+
+```php
+// subscribe user
+$user->subscribe();
+
+// unsubscribe user
+$user->unsubscribe();
+```
