@@ -5,6 +5,7 @@ namespace Mydnic\Subscribers;
 use Illuminate\Auth\MustVerifyEmail;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Mydnic\Subscribers\Events\SubscriberCreated;
 use Mydnic\Subscribers\Events\SubscriberDeleted;
@@ -12,7 +13,7 @@ use Mydnic\Subscribers\Notifications\SubscriberVerifyEmail;
 
 class Subscriber extends Model
 {
-    use Notifiable;
+    use Notifiable, SoftDeletes;
 
     protected $table = 'subscribers';
 
