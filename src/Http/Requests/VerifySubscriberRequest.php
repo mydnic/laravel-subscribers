@@ -2,8 +2,8 @@
 
 namespace Mydnic\Subscribers\Http\Requests;
 
-use Mydnic\Subscribers\Subscriber;
 use Illuminate\Foundation\Http\FormRequest;
+use Mydnic\Subscribers\Subscriber;
 
 class VerifySubscriberRequest extends FormRequest
 {
@@ -15,7 +15,7 @@ class VerifySubscriberRequest extends FormRequest
     public function rules()
     {
         return [
-            //'email' => 'required|email|exists:subscribers,email',
+            // 'email' => 'required|email|exists:subscribers,email',
         ];
     }
 

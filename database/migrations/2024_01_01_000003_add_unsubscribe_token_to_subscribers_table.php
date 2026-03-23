@@ -4,6 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Mydnic\Subscribers\Models\Subscriber;
 
 return new class extends Migration
 {
@@ -14,7 +15,7 @@ return new class extends Migration
         });
 
         // Backfill tokens for any existing subscribers
-        \Mydnic\Subscribers\Models\Subscriber::withTrashed()
+        Subscriber::withTrashed()
             ->whereNull('unsubscribe_token')
             ->each(function ($subscriber) {
                 $subscriber->updateQuietly(['unsubscribe_token' => Str::random(64)]);

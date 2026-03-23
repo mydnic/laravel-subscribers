@@ -3,13 +3,10 @@
 namespace Mydnic\Subscribers\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 
 class SubscriberVerifyEmail extends Notification
@@ -41,18 +38,18 @@ class SubscriberVerifyEmail extends Notification
      * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @return MailMessage
      */
     public function toMail($notifiable)
     {
         $verificationUrl = $this->verificationUrl($notifiable);
 
-        $mail = new MailMessage();
+        $mail = new MailMessage;
 
         $mail->subject(Lang::get(config('laravel-subscribers.mail.verify.subject', 'Verify Email Address')));
         $mail->greeting(Lang::get(config('laravel-subscribers.mail.verify.greeting', 'Hello!')));
 
-        if (!empty(config('laravel-subscribers.mail.verify.content'))) {
+        if (! empty(config('laravel-subscribers.mail.verify.content'))) {
             foreach (config('laravel-subscribers.mail.verify.content') as $value) {
                 $mail->line(Lang::get($value));
             }
@@ -62,7 +59,7 @@ class SubscriberVerifyEmail extends Notification
 
         $mail->action(Lang::get(config('laravel-subscribers.mail.verify.action', 'Verify Email Address')), $verificationUrl);
 
-        if (!empty(config('laravel-subscribers.mail.verify.footer'))) {
+        if (! empty(config('laravel-subscribers.mail.verify.footer'))) {
             foreach (config('laravel-subscribers.mail.verify.footer') as $value) {
                 $mail->line(Lang::get($value));
             }

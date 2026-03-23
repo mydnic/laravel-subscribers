@@ -31,7 +31,7 @@ class SubscribersOverview extends BaseWidget
 
         return [
             Stat::make('Total Subscribers', number_format($total))
-                ->description($thisMonth . ' new this month')
+                ->description($thisMonth.' new this month')
                 ->descriptionIcon($growth >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down')
                 ->color($growth >= 0 ? 'success' : 'danger')
                 ->chart(
@@ -44,12 +44,12 @@ class SubscribersOverview extends BaseWidget
                 ),
 
             Stat::make('Verified Subscribers', number_format($verified))
-                ->description($total > 0 ? round($verified / $total * 100, 1) . '% of total' : '0% of total')
+                ->description($total > 0 ? round($verified / $total * 100, 1).'% of total' : '0% of total')
                 ->descriptionIcon('heroicon-m-check-badge')
                 ->color('info'),
 
             Stat::make('Campaigns Sent', number_format($sentCampaigns))
-                ->description(Campaign::where('status', CampaignStatus::Draft)->count() . ' drafts pending')
+                ->description(Campaign::where('status', CampaignStatus::Draft)->count().' drafts pending')
                 ->descriptionIcon('heroicon-m-paper-airplane')
                 ->color('warning'),
         ];

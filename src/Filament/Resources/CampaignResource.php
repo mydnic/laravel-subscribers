@@ -120,15 +120,15 @@ class CampaignResource extends Resource
         return $infolist->schema([
             InfoSection::make('Stats')->schema([
                 Grid::make(5)->schema([
-                    \Filament\Infolists\Components\TextEntry::make('sent_count')
+                    TextEntry::make('sent_count')
                         ->label('Sent')
                         ->numeric(),
 
-                    \Filament\Infolists\Components\TextEntry::make('opens')
+                    TextEntry::make('opens')
                         ->label('Opened')
                         ->state(fn (Campaign $record): int => $record->sends()->whereNotNull('opened_at')->count()),
 
-                    \Filament\Infolists\Components\TextEntry::make('open_rate')
+                    TextEntry::make('open_rate')
                         ->label('Open Rate')
                         ->state(function (Campaign $record): string {
                             $sent = $record->sends()->whereNotNull('sent_at')->count();
@@ -137,14 +137,14 @@ class CampaignResource extends Resource
                             }
                             $opened = $record->sends()->whereNotNull('opened_at')->count();
 
-                            return round($opened / $sent * 100, 1) . '%';
+                            return round($opened / $sent * 100, 1).'%';
                         }),
 
-                    \Filament\Infolists\Components\TextEntry::make('clicks')
+                    TextEntry::make('clicks')
                         ->label('Clicked')
                         ->state(fn (Campaign $record): int => $record->sends()->whereNotNull('clicked_at')->count()),
 
-                    \Filament\Infolists\Components\TextEntry::make('click_rate')
+                    TextEntry::make('click_rate')
                         ->label('Click Rate')
                         ->state(function (Campaign $record): string {
                             $sent = $record->sends()->whereNotNull('sent_at')->count();
@@ -153,7 +153,7 @@ class CampaignResource extends Resource
                             }
                             $clicked = $record->sends()->whereNotNull('clicked_at')->count();
 
-                            return round($clicked / $sent * 100, 1) . '%';
+                            return round($clicked / $sent * 100, 1).'%';
                         }),
                 ]),
             ])->visible(fn (Campaign $record): bool => $record->isSent() || $record->isSending()),
@@ -166,9 +166,9 @@ class CampaignResource extends Resource
                 TextEntry::make('status')
                     ->badge()
                     ->color(fn (CampaignStatus $state): string => match ($state) {
-                        CampaignStatus::Draft     => 'gray',
-                        CampaignStatus::Sending   => 'warning',
-                        CampaignStatus::Sent      => 'success',
+                        CampaignStatus::Draft => 'gray',
+                        CampaignStatus::Sending => 'warning',
+                        CampaignStatus::Sent => 'success',
                         CampaignStatus::Cancelled => 'danger',
                     }),
 
@@ -227,9 +227,9 @@ class CampaignResource extends Resource
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (CampaignStatus $state): string => match ($state) {
-                        CampaignStatus::Draft     => 'gray',
-                        CampaignStatus::Sending   => 'warning',
-                        CampaignStatus::Sent      => 'success',
+                        CampaignStatus::Draft => 'gray',
+                        CampaignStatus::Sending => 'warning',
+                        CampaignStatus::Sent => 'success',
                         CampaignStatus::Cancelled => 'danger',
                     })
                     ->sortable(),
@@ -247,7 +247,7 @@ class CampaignResource extends Resource
                         }
                         $opened = $record->sends()->whereNotNull('opened_at')->count();
 
-                        return round($opened / $record->sent_count * 100, 1) . '%';
+                        return round($opened / $record->sent_count * 100, 1).'%';
                     }),
 
                 TextColumn::make('sent_at')
@@ -346,10 +346,10 @@ class CampaignResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => ListCampaigns::route('/'),
+            'index' => ListCampaigns::route('/'),
             'create' => CreateCampaign::route('/create'),
-            'view'   => ViewCampaign::route('/{record}'),
-            'edit'   => EditCampaign::route('/{record}/edit'),
+            'view' => ViewCampaign::route('/{record}'),
+            'edit' => EditCampaign::route('/{record}/edit'),
         ];
     }
 }

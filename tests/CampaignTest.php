@@ -3,13 +3,13 @@
 namespace Mydnic\Subscribers\Test;
 
 use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Mail;
 use Mydnic\Subscribers\Actions\SendCampaignAction;
-use Mydnic\Subscribers\Mail\CampaignMail;
 use Mydnic\Subscribers\Enums\CampaignStatus;
 use Mydnic\Subscribers\Jobs\SendCampaignJob;
+use Mydnic\Subscribers\Mail\CampaignMail;
 use Mydnic\Subscribers\Models\Campaign;
+use Mydnic\Subscribers\Models\CampaignSend;
 use PHPUnit\Framework\Attributes\Test;
 
 class CampaignTest extends TestCase
@@ -117,7 +117,7 @@ class CampaignTest extends TestCase
         $this->assertNull($campaign->sent_at);
 
         // No CampaignSend records created
-        $this->assertEquals(0, \Mydnic\Subscribers\Models\CampaignSend::count());
+        $this->assertEquals(0, CampaignSend::count());
 
         Mail::assertSent(CampaignMail::class, fn ($mail) => $mail->hasTo('preview@example.com'));
     }

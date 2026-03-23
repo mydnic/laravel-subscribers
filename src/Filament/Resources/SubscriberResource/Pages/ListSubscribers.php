@@ -2,7 +2,6 @@
 
 namespace Mydnic\Subscribers\Filament\Resources\SubscriberResource\Pages;
 
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Pages\ListRecords\Tab;
 use Illuminate\Database\Eloquent\Builder;

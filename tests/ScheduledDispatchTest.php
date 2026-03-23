@@ -16,9 +16,9 @@ class ScheduledDispatchTest extends TestCase
         Bus::fake();
 
         Campaign::create([
-            'name'       => 'Due Campaign',
-            'subject'    => 'Subject',
-            'status'     => CampaignStatus::Draft->value,
+            'name' => 'Due Campaign',
+            'subject' => 'Subject',
+            'status' => CampaignStatus::Draft->value,
             'scheduled_at' => now()->subMinute(),
         ]);
 
@@ -33,9 +33,9 @@ class ScheduledDispatchTest extends TestCase
         Bus::fake();
 
         Campaign::create([
-            'name'         => 'Future Campaign',
-            'subject'      => 'Subject',
-            'status'       => CampaignStatus::Draft->value,
+            'name' => 'Future Campaign',
+            'subject' => 'Subject',
+            'status' => CampaignStatus::Draft->value,
             'scheduled_at' => now()->addHour(),
         ]);
 
@@ -50,9 +50,9 @@ class ScheduledDispatchTest extends TestCase
         Bus::fake();
 
         Campaign::create([
-            'name'         => 'Already Sent',
-            'subject'      => 'Subject',
-            'status'       => CampaignStatus::Sent->value,
+            'name' => 'Already Sent',
+            'subject' => 'Subject',
+            'status' => CampaignStatus::Sent->value,
             'scheduled_at' => now()->subMinute(),
         ]);
 
@@ -67,9 +67,9 @@ class ScheduledDispatchTest extends TestCase
         Bus::fake();
 
         Campaign::create([
-            'name'    => 'Unscheduled',
+            'name' => 'Unscheduled',
             'subject' => 'Subject',
-            'status'  => CampaignStatus::Draft->value,
+            'status' => CampaignStatus::Draft->value,
         ]);
 
         $this->artisan('subscribers:dispatch-scheduled')->assertSuccessful();
@@ -83,16 +83,16 @@ class ScheduledDispatchTest extends TestCase
         Bus::fake();
 
         $due = Campaign::create([
-            'name'         => 'Due',
-            'subject'      => 'Subject',
-            'status'       => CampaignStatus::Draft->value,
+            'name' => 'Due',
+            'subject' => 'Subject',
+            'status' => CampaignStatus::Draft->value,
             'scheduled_at' => now()->subMinutes(5),
         ]);
 
         Campaign::create([
-            'name'         => 'Future',
-            'subject'      => 'Subject',
-            'status'       => CampaignStatus::Draft->value,
+            'name' => 'Future',
+            'subject' => 'Subject',
+            'status' => CampaignStatus::Draft->value,
             'scheduled_at' => now()->addHour(),
         ]);
 

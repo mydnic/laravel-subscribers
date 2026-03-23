@@ -23,6 +23,7 @@ class SyncSubscribersCommand extends Command
 
         if (! class_exists($modelClass)) {
             $this->error("Class [{$modelClass}] does not exist.");
+
             return self::FAILURE;
         }
 
@@ -46,6 +47,7 @@ class SyncSubscribersCommand extends Command
 
                 if (empty($email)) {
                     $skipped++;
+
                     continue;
                 }
 

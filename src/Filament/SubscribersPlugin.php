@@ -12,8 +12,11 @@ use Mydnic\Subscribers\Filament\Widgets\SubscribersOverview;
 class SubscribersPlugin implements Plugin
 {
     protected bool $subscriberResource = true;
+
     protected bool $campaignResource = true;
+
     protected bool $subscribersOverviewWidget = true;
+
     protected bool $newSubscribersChartWidget = true;
 
     public static function make(): static

@@ -3,6 +3,7 @@
 namespace Mydnic\Subscribers\Test;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Mydnic\Subscribers\Models\Subscriber;
 use Mydnic\Subscribers\Traits\HasNewsletterSubscription;
 use PHPUnit\Framework\Attributes\Test;
@@ -12,7 +13,9 @@ class FakeUser extends Model
     use HasNewsletterSubscription;
 
     protected $table = 'fake_users';
+
     protected $fillable = ['email', 'subscribed_to_newsletter'];
+
     public $timestamps = false;
 }
 
@@ -22,7 +25,7 @@ class SyncTest extends TestCase
     {
         parent::setUpDatabase();
 
-        \Illuminate\Support\Facades\Schema::create('fake_users', function ($table) {
+        Schema::create('fake_users', function ($table) {
             $table->id();
             $table->string('email')->unique();
             $table->boolean('subscribed_to_newsletter')->default(false);

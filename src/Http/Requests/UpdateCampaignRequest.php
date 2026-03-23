@@ -3,7 +3,6 @@
 namespace Mydnic\Subscribers\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Mydnic\Subscribers\Enums\CampaignStatus;
 
 class UpdateCampaignRequest extends FormRequest
 {

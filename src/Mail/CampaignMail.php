@@ -4,6 +4,7 @@ namespace Mydnic\Subscribers\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -31,14 +32,14 @@ class CampaignMail extends Mailable
             ?? config('mail.from.name');
 
         $envelope = new Envelope(
-            from: new \Illuminate\Mail\Mailables\Address($fromEmail, $fromName),
+            from: new Address($fromEmail, $fromName),
             subject: $this->campaign->subject,
         );
 
         if ($this->campaign->reply_to) {
             $envelope = new Envelope(
-                from: new \Illuminate\Mail\Mailables\Address($fromEmail, $fromName),
-                replyTo: [new \Illuminate\Mail\Mailables\Address($this->campaign->reply_to)],
+                from: new Address($fromEmail, $fromName),
+                replyTo: [new Address($this->campaign->reply_to)],
                 subject: $this->campaign->subject,
             );
         }

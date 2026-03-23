@@ -56,10 +56,10 @@ class TrackingUrlService
         );
 
         if (stripos($html, '</body>') !== false) {
-            return str_ireplace('</body>', $pixel . '</body>', $html);
+            return str_ireplace('</body>', $pixel.'</body>', $html);
         }
 
-        return $html . $pixel;
+        return $html.$pixel;
     }
 
     public function processHtml(string $html, CampaignSend $send): string

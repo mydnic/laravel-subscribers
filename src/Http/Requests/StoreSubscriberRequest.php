@@ -6,7 +6,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreSubscriberRequest extends FormRequest
 {
-
     protected $errorBag = 'subscribers';
 
     /**

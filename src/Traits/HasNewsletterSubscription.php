@@ -2,6 +2,7 @@
 
 namespace Mydnic\Subscribers\Traits;
 
+use Illuminate\Database\Eloquent\Builder;
 use Mydnic\Subscribers\Models\Subscriber;
 
 /**
@@ -84,7 +85,7 @@ trait HasNewsletterSubscription
         return (string) ($this->{$this->getSubscriberEmailColumn()} ?? '');
     }
 
-    public function subscriber(): ?\Illuminate\Database\Eloquent\Builder
+    public function subscriber(): ?Builder
     {
         return Subscriber::where('email', $this->getSubscriberEmail());
     }

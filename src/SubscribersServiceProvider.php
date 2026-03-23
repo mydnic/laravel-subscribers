@@ -13,7 +13,7 @@ class SubscribersServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerPublishing();
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'laravel-subscribers');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-subscribers');
         $this->registerRoutes();
         $this->registerSchedule();
 
@@ -40,19 +40,19 @@ class SubscribersServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__ . '/../resources/js/components' => resource_path('js/components/Subscribers'),
+                __DIR__.'/../resources/js/components' => resource_path('js/components/Subscribers'),
             ], 'subscribers-vue-component');
 
             $this->publishes([
-                __DIR__ . '/../database/migrations' => database_path('migrations'),
+                __DIR__.'/../database/migrations' => database_path('migrations'),
             ], 'subscribers-migrations');
 
             $this->publishes([
-                __DIR__ . '/../config/laravel-subscribers.php' => config_path('laravel-subscribers.php'),
+                __DIR__.'/../config/laravel-subscribers.php' => config_path('laravel-subscribers.php'),
             ], 'subscribers-config');
 
             $this->publishes([
-                __DIR__ . '/../resources/views' => resource_path('views/vendor/laravel-subscribers'),
+                __DIR__.'/../resources/views' => resource_path('views/vendor/laravel-subscribers'),
             ], 'subscribers-views');
         }
     }
@@ -60,16 +60,16 @@ class SubscribersServiceProvider extends ServiceProvider
     protected function registerRoutes(): void
     {
         Route::group($this->webRouteConfiguration(), function () {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+            $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         });
 
         Route::group($this->apiRouteConfiguration(), function () {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+            $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
         });
 
         if (config('laravel-subscribers.campaigns.enabled', true)) {
             Route::group($this->campaignRouteConfiguration(), function () {
-                $this->loadRoutesFrom(__DIR__ . '/../routes/campaigns.php');
+                $this->loadRoutesFrom(__DIR__.'/../routes/campaigns.php');
             });
         }
     }
@@ -104,7 +104,7 @@ class SubscribersServiceProvider extends ServiceProvider
     public function register(): void
     {
         if (! $this->app->configurationIsCached()) {
-            $this->mergeConfigFrom(__DIR__ . '/../config/laravel-subscribers.php', 'laravel-subscribers');
+            $this->mergeConfigFrom(__DIR__.'/../config/laravel-subscribers.php', 'laravel-subscribers');
         }
     }
 }

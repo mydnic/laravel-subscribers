@@ -9,7 +9,6 @@ use Filament\Actions\RestoreAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Mydnic\Subscribers\Filament\Resources\SubscriberResource;
-use Mydnic\Subscribers\Models\Subscriber;
 
 class ViewSubscriber extends ViewRecord
 {

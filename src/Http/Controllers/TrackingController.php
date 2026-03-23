@@ -2,6 +2,7 @@
 
 namespace Mydnic\Subscribers\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -35,7 +36,7 @@ class TrackingController extends Controller
         ]);
     }
 
-    public function click(Request $request, string $token): \Illuminate\Http\RedirectResponse
+    public function click(Request $request, string $token): RedirectResponse
     {
         $send = CampaignSend::where('token', $token)->first();
 
