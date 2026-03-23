@@ -4,17 +4,12 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSubscribersTable extends Migration
+return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+    public function up(): void
     {
         Schema::create('subscribers', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->string('email')->unique();
             $table->timestamps();
             $table->softDeletes();
@@ -22,13 +17,8 @@ class CreateSubscribersTable extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('subscribers');
     }
-}
+};

@@ -2,76 +2,88 @@
 
 namespace Mydnic\Subscribers\Test;
 
-use Mydnic\Subscribers\Subscriber;
 use Illuminate\Support\Facades\Event;
 use Mydnic\Subscribers\Events\SubscriberCreated;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Orchestra\Testbench\Http\Middleware\VerifyCsrfToken;
 use Mydnic\Subscribers\Events\SubscriberDeleted;
+use Mydnic\Subscribers\Models\Subscriber;
+use PHPUnit\Framework\Attributes\Test;
 
 class SubscriberTest extends TestCase
 {
-    /** @test */
-    public function it_saves_the_subscriber_via_api()
+    #[Test]
+    public function it_saves_the_subscriber_via_api(): void
     {
-        Event::fake();
+        Event::fake([SubscriberCreated::class]);
 
-        $request = $this->post('/subscribers-api/subscriber', [
+        $response = $this->post('/subscribers-api/subscriber', [
             'email' => 'some@email.com',
         ]);
 
-        $request->assertStatus(201);
+        $response->assertStatus(201);
 
         $subscriber = Subscriber::first();
         $this->assertEquals('some@email.com', $subscriber->email);
 
-        Event::assertDispatched(SubscriberCreated::class, function ($e) use ($subscriber) {
-            return $e->subscriber->id === $subscriber->id;
-        });
+        Event::assertDispatched(SubscriberCreated::class, fn ($e) => $e->subscriber->id === $subscriber->id);
     }
 
-    /** @test */
-    public function it_saves_the_subscriber_via_web()
+    #[Test]
+    public function it_saves_the_subscriber_via_web(): void
     {
-        Event::fake();
+        Event::fake([SubscriberCreated::class]);
 
-        $request = $this->post('/subscribers/subscriber', [
+        $response = $this->post('/subscribers/subscriber', [
             'email' => 'someweb@email.com',
         ]);
 
-        $request->assertStatus(302);
+        $response->assertStatus(302);
 
         $subscriber = Subscriber::first();
         $this->assertEquals('someweb@email.com', $subscriber->email);
 
-        Event::assertDispatched(SubscriberCreated::class, function ($e) use ($subscriber) {
-            return $e->subscriber->id === $subscriber->id;
-        });
+        Event::assertDispatched(SubscriberCreated::class, fn ($e) => $e->subscriber->id === $subscriber->id);
     }
 
-    /** @test */
-    public function it_refuses_existing_subscribers()
+    #[Test]
+    public function it_generates_an_unsubscribe_token_on_creation(): void
+    {
+        $subscriber = Subscriber::create(['email' => 'some@email.com']);
+
+        $this->assertNotEmpty($subscriber->unsubscribe_token);
+        $this->assertEquals(64, strlen($subscriber->unsubscribe_token));
+    }
+
+    #[Test]
+    public function it_refuses_existing_subscribers(): void
     {
         Subscriber::create(['email' => 'some@email.com']);
 
-        $request = $this->post('/subscribers-api/subscriber', [
-            'email' => 'some@email.com',
-        ]);
+        $this->post('/subscribers-api/subscriber', ['email' => 'some@email.com']);
 
         $this->assertEquals(1, Subscriber::count());
     }
 
-    /** @test */
-    public function it_deletes_existing_subscribers()
+    #[Test]
+    public function it_unsubscribes_via_token(): void
     {
-        Event::fake();
+        Event::fake([SubscriberDeleted::class]);
 
-        Subscriber::create(['email' => 'some@email.com']);
+        $subscriber = Subscriber::create(['email' => 'some@email.com']);
 
-        $request = $this->get('/subscribers/delete?email=some@email.com');
+        $response = $this->get("/subscribers/unsubscribe/{$subscriber->unsubscribe_token}");
 
+        $response->assertStatus(200);
         $this->assertEquals(0, Subscriber::count());
 
         Event::assertDispatched(SubscriberDeleted::class);
+    }
+
+    #[Test]
+    public function it_shows_unsubscribed_page_for_unknown_token(): void
+    {
+        // Unknown token silently returns 200 — no email enumeration possible
+        $response = $this->get('/subscribers/unsubscribe/totally-fake-token');
+
+        $response->assertStatus(200);
     }
 }

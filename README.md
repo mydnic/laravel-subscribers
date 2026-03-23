@@ -1,36 +1,152 @@
-# Manage Internal Newsletter Subscribers With Laravel
+# Laravel Subscribers
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mydnic/laravel-subscribers.svg)](https://packagist.org/packages/mydnic/laravel-subscribers)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
-[![Build Status](https://img.shields.io/travis/com/mydnic/laravel-subscribers.svg)](https://travis-ci.com/mydnic/laravel-subscribers)
-[![Code Quality](https://img.shields.io/scrutinizer/g/mydnic/laravel-subscribers.svg)](https://scrutinizer-ci.com/g/mydnic/laravel-subscribers/)
+[![PHP](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://php.net)
+[![Laravel](https://img.shields.io/badge/Laravel-10%20%7C%2011%20%7C%2012-red)](https://laravel.com)
+[![Filament](https://img.shields.io/badge/Filament-3%20%7C%204%20%7C%205-orange)](https://filamentphp.com)
 
+A lightweight newsletter subscriber management package for Laravel. Handle subscriptions, send campaigns, track opens and clicks — all without a third-party service.
+
+> **Heads-up:** This package is designed for small to medium audiences (think side-projects, indie apps, internal tools). It sends mail through whatever driver is configured in your `config/mail.php` and has **no bounce handling, no complaint webhooks, and no deliverability tooling**. If you're sending to tens of thousands of subscribers or need professional deliverability guarantees, use a dedicated email service provider instead. [Sendboo](https://sendboo.com) is a great option with full campaign management, AI features, and solid deliverability.
+
+---
+
+## Features
+
+- **Subscriber management** — subscribe, unsubscribe, soft-delete, restore
+- **Email verification** — optional double opt-in with signed URLs
+- **Campaigns** — create and send HTML newsletters to all subscribers via Laravel queues
+- **Open & click tracking** — pixel-based open tracking and link proxy click tracking
+- **User sync** — automatically sync your `User` model with the subscribers table via a trait or Artisan command
+- **Publishable views** — override the email layout and unsubscribe page in your own app
+- **Nova integration** — Laravel Nova resource and metrics card included
+- **Filament integration** — full Filament v3 plugin with resources, infolists, and widgets
+- **Events** — every action fires an event you can listen to
+
+---
+
+## Requirements
+
+- PHP 8.1+
+- Laravel 10, 11, or 12
+
+---
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Subscriber Management](#subscriber-management)
+  - [Web Form](#web-form)
+  - [API Endpoint](#api-endpoint)
+  - [Programmatic Subscription](#programmatic-subscription)
+  - [Email Verification](#email-verification)
+  - [Unsubscribing](#unsubscribing)
+- [Campaigns](#campaigns)
+  - [Creating a Campaign](#creating-a-campaign)
+  - [Sending a Campaign](#sending-a-campaign)
+  - [Scheduling a Campaign](#scheduling-a-campaign)
+  - [Custom Blade Views](#custom-blade-views)
+  - [Campaign API](#campaign-api)
+- [Tracking](#tracking)
+  - [How It Works](#how-it-works)
+  - [Tracking Events](#tracking-events)
+- [User Sync](#user-sync)
+  - [HasNewsletterSubscription Trait](#hasnewslettersubscription-trait)
+  - [Artisan Sync Command](#artisan-sync-command)
+- [Events Reference](#events-reference)
+- [Publishing Assets](#publishing-assets)
+- [Nova Integration](#nova-integration)
+- [Filament Integration](#filament-integration)
+- [Upgrading](#upgrading)
+
+---
 
 ## Installation
 
-You may use Composer to Install Laravel Subscribers:
+Install via Composer:
 
 ```bash
 composer require mydnic/laravel-subscribers
 ```
 
-The package will automatically register itself
-
-You then must publish the migration with:
+The service provider is auto-discovered. Next, publish and run the migrations:
 
 ```bash
-php artisan vendor:publish --provider="Mydnic\Subscribers\SubscribersServiceProvider" --tag="subscribers-migrations"
+php artisan vendor:publish --tag="subscribers-migrations"
+php artisan migrate
 ```
 
-## Usage
+This creates three tables: `subscribers`, `campaigns`, and `campaign_sends`.
 
-In your view, you simply need to add a form that you can customize the way you want
+---
+
+## Configuration
+
+Publish the config file:
+
+```bash
+php artisan vendor:publish --tag="subscribers-config"
+```
+
+This creates `config/laravel-subscribers.php`:
+
+```php
+return [
+    // Enable email verification (double opt-in)
+    'verify' => env('LARAVEL_SUBSCRIBERS_VERIFY', false),
+
+    // Named route to redirect to after web form submission
+    'redirect_url' => 'home',
+
+    // Verification email content
+    'mail' => [
+        'verify' => [
+            'expiration' => 60, // minutes
+            'subject'    => 'Verify Email Address',
+            'greeting'   => 'Hello!',
+            'content'    => ['Please click the button below to verify your email address.'],
+            'action'     => 'Verify Email Address',
+            'footer'     => ['If you did not sign up for our newsletter, no further action is required.'],
+        ],
+    ],
+
+    // Campaign sending
+    'campaigns' => [
+        'enabled'    => true,
+        'middleware' => ['api'],           // middleware for campaign management routes
+        'from' => [
+            'name'  => env('MAIL_FROM_NAME', 'Newsletter'),
+            'email' => env('MAIL_FROM_ADDRESS', 'newsletter@example.com'),
+        ],
+        'queue'    => env('SUBSCRIBERS_QUEUE', 'default'),
+        'schedule' => true, // auto-register the dispatch command on the scheduler
+    ],
+
+    // Open and click tracking
+    'tracking' => [
+        'enabled'         => true,
+        'open'            => true,
+        'click'           => true,
+        'allowed_domains' => [], // empty = allow all; ['example.com'] = allowlist
+    ],
+];
+```
+
+---
+
+## Subscriber Management
+
+### Web Form
+
+Add a form anywhere in your Blade views:
 
 ```blade
-<form action="{{ route('subscribers.store') }}" method="post">
+<form action="{{ route('subscribers.store') }}" method="POST">
     @csrf
-    <input type="email" name="email">
-    <input type="submit" value="submit">
+    <input type="email" name="email" placeholder="Your email address" required>
+    <button type="submit">Subscribe</button>
 </form>
 
 @if (session('subscribed'))
@@ -40,35 +156,657 @@ In your view, you simply need to add a form that you can customize the way you w
 @endif
 ```
 
+On success the user is redirected to the route defined in `redirect_url` with a `subscribed` session flash message.
 
-### Delete
-Simply provide this link to your subscribers:
+### API Endpoint
 
-```blade
-<a href="{{ route('subscribers.delete', ['email' => $subscriber->email]) }}">unsubscribe</a>
+A JSON endpoint is also available:
+
+```
+POST /subscribers-api/subscriber
+Content-Type: application/json
+
+{ "email": "someone@example.com" }
 ```
 
-This will generate a link like `/subscribers/delete?email=email@example.com`
+Response `201 Created`:
+```json
+{ "created": true }
+```
 
-### Subscribe manually from the user model
+Duplicate emails return a `422 Unprocessable Entity` with a validation error.
 
-Alternatively, you can manage the subscription of a user from the user model.
+### Programmatic Subscription
 
-In order to do that you will need to add the `CanSubscribe` trait
+Add the `CanSubscribe` trait to any Eloquent model that has an `email` attribute:
 
 ```php
 use Mydnic\Subscribers\Traits\CanSubscribe;
 
-class User extends Model
+class User extends Authenticatable
 {
     use CanSubscribe;
 }
 ```
 
-```php
-// subscribe user
-$user->subscribe();
+Then call the trait methods:
 
-// unsubscribe user
-$user->unsubscribe();
+```php
+$user->subscribe();       // adds the user's email to subscribers
+$user->unsubscribe();     // soft-deletes the subscriber record
+$user->isSubscribed();    // returns bool
 ```
+
+If `verify` is enabled in config, `subscribe()` automatically sends the verification email.
+
+### Email Verification
+
+Set `LARAVEL_SUBSCRIBERS_VERIFY=true` in your `.env` (or set `'verify' => true` in config) to enable double opt-in. When enabled:
+
+- Subscribers are saved immediately but are **not considered active** until they click the verification link.
+- A verification email is sent automatically on `subscribe()` or web form submission.
+- Only verified subscribers (`email_verified_at` is not null) receive campaigns.
+
+You can customise every line of the verification email in the `mail.verify` config key.
+
+The verification route is `GET /subscribers/verify/{id}/{hash}` — this is handled automatically.
+
+### Unsubscribing
+
+Every subscriber gets a unique random `unsubscribe_token` generated automatically on creation. Use it to build a safe unsubscribe link — the subscriber's email address is never exposed in the URL:
+
+```blade
+<a href="{{ $subscriber->getUnsubscribeUrl() }}">Unsubscribe</a>
+```
+
+This generates a URL like `/subscribers/unsubscribe/Xk9mP...` (64-char opaque token). The subscriber record is soft-deleted, and the user sees the unsubscribe confirmation page (which you can publish and customise — see [Publishing Assets](#publishing-assets)).
+
+The token is also injected automatically into all campaign emails via the default `base.blade.php` layout, so you don't need to add it manually to campaigns.
+
+> **Note:** For subscribers created before this version (without a token), `getUnsubscribeUrl()` generates and persists a token on the fly. The backfill migration handles bulk assignment for existing rows.
+
+---
+
+## Campaigns
+
+### Creating a Campaign
+
+Use the `Campaign` model directly:
+
+```php
+use Mydnic\Subscribers\Models\Campaign;
+
+$campaign = Campaign::create([
+    'name'         => 'March Newsletter',
+    'subject'      => 'What\'s new this month',
+    'from_name'    => 'Acme Newsletter',     // optional, falls back to config
+    'from_email'   => 'news@acme.com',       // optional, falls back to config
+    'reply_to'     => 'support@acme.com',    // optional
+    'content_html' => '<h1>Hello!</h1><p>Here is what\'s new...</p>',
+]);
+```
+
+Campaigns are created in `draft` status and are not sent until you explicitly trigger a send.
+
+### Sending a Campaign
+
+Inject or resolve the `SendCampaignAction` and call `execute()`:
+
+```php
+use Mydnic\Subscribers\Actions\SendCampaignAction;
+use Mydnic\Subscribers\Models\Campaign;
+
+$campaign = Campaign::find(1);
+
+app(SendCampaignAction::class)->execute($campaign);
+```
+
+This dispatches a queued job that:
+
+1. Sets the campaign status to `sending`
+2. Chunks through all (verified) subscribers
+3. Creates a `CampaignSend` record with a unique tracking token per subscriber
+4. Dispatches an individual queued job per subscriber that sends the email
+5. Sets the status to `sent` once all jobs are dispatched
+
+Make sure you have a queue worker running:
+
+```bash
+php artisan queue:work
+```
+
+### Scheduling a Campaign
+
+Set `scheduled_at` on a campaign to send it at a specific time in the future:
+
+```php
+use Mydnic\Subscribers\Models\Campaign;
+
+$campaign = Campaign::create([
+    'name'         => 'March Newsletter',
+    'subject'      => 'What\'s new this month',
+    'content_html' => '<p>...</p>',
+    'scheduled_at' => now()->addDays(3), // send in 3 days
+]);
+```
+
+The campaign stays in `draft` status and is sent automatically when its `scheduled_at` time passes.
+
+#### How It Works
+
+The package registers the `subscribers:dispatch-scheduled` Artisan command on your application scheduler and runs it every minute:
+
+```
+subscribers:dispatch-scheduled
+```
+
+This command queries for all `draft` campaigns whose `scheduled_at` is in the past and calls `SendCampaignAction::execute()` on each of them. Internally this dispatches `SendCampaignJob` to your configured queue — the same path as an immediate send.
+
+> **Important:** Your scheduler must be running. Add this to your server's cron if you haven't already:
+> ```cron
+> * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+> ```
+
+#### Opting Out of Auto-Registration
+
+If you prefer to schedule the command yourself (e.g. less frequently, or with a specific environment condition), set `schedule` to `false` in config and add the command manually in your `Console/Kernel.php` (Laravel 10) or `bootstrap/app.php` (Laravel 11+):
+
+```php
+// config/laravel-subscribers.php
+'campaigns' => [
+    'schedule' => false,
+],
+```
+
+```php
+// bootstrap/app.php (Laravel 11+)
+->withSchedule(function (Schedule $schedule) {
+    $schedule->command('subscribers:dispatch-scheduled')->everyFiveMinutes();
+})
+```
+
+---
+
+### Custom Blade Views
+
+By default campaigns are rendered using the package's built-in email layout. You can point a campaign to any Blade view in your application:
+
+```php
+$campaign = Campaign::create([
+    'name'    => 'Special Announcement',
+    'subject' => 'Big news!',
+    'view'    => 'emails.special-announcement', // your own Blade view
+]);
+```
+
+Your view receives these variables:
+
+| Variable      | Type           | Description                          |
+|---------------|----------------|--------------------------------------|
+| `$campaign`   | `Campaign`     | The campaign model                   |
+| `$send`       | `CampaignSend` | The per-subscriber send record       |
+| `$subscriber` | `Subscriber`   | The subscriber receiving this email  |
+
+Example view:
+
+```blade
+{{-- resources/views/emails/special-announcement.blade.php --}}
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>{{ $campaign->subject }}</h1>
+    <p>Hi {{ $subscriber->email }},</p>
+    <p>We have big news for you!</p>
+    <a href="{{ $subscriber->getUnsubscribeUrl() }}">Unsubscribe</a>
+</body>
+</html>
+```
+
+Tracking (open pixel and link rewriting) is applied automatically to the rendered HTML regardless of which view is used.
+
+### Campaign API
+
+A full REST API for managing campaigns is available under `/subscribers-api/campaigns`. The middleware protecting these routes defaults to `['api']` and is configurable via `campaigns.middleware` in config.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/subscribers-api/campaigns` | List all campaigns (paginated) |
+| `POST` | `/subscribers-api/campaigns` | Create a new campaign |
+| `GET` | `/subscribers-api/campaigns/{id}` | Get campaign details + stats |
+| `PUT` | `/subscribers-api/campaigns/{id}` | Update a draft campaign |
+| `DELETE` | `/subscribers-api/campaigns/{id}` | Soft-delete a campaign |
+| `POST` | `/subscribers-api/campaigns/{id}/send` | Dispatch the send job |
+| `POST` | `/subscribers-api/campaigns/{id}/test` | Send a test copy to one address |
+
+**Create a campaign:**
+
+```bash
+curl -X POST /subscribers-api/campaigns \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "April Newsletter",
+    "subject": "Hello from April",
+    "content_html": "<p>This month...</p>"
+  }'
+```
+
+**Get campaign stats:**
+
+```json
+{
+  "campaign": { "id": 1, "name": "April Newsletter", "status": "sent" },
+  "stats": {
+    "sent": 1200,
+    "opened": 340,
+    "clicked": 85,
+    "open_rate": 28.33,
+    "click_rate": 7.08
+  }
+}
+```
+
+**Send a test email:**
+
+```bash
+curl -X POST /subscribers-api/campaigns/1/test \
+  -H "Content-Type: application/json" \
+  -d '{ "email": "you@example.com" }'
+```
+
+The email is sent immediately (not queued) as an exact copy of what subscribers would receive — same subject, same content, same tracking links (though the token won't exist in the database so opens/clicks won't be recorded). Does not create any `CampaignSend` records or alter the campaign's status or counts. Works for campaigns in any status — useful for previewing already-sent campaigns too.
+
+To add authentication to campaign routes, update the middleware in config:
+
+```php
+'campaigns' => [
+    'middleware' => ['api', 'auth:sanctum'],
+],
+```
+
+---
+
+## Tracking
+
+### How It Works
+
+When a campaign is sent, the package automatically processes every email's HTML before delivery:
+
+1. **Open tracking** — a 1×1 transparent GIF pixel is injected just before `</body>`:
+   ```html
+   <img src="https://yourapp.com/subscribers/tracking/open/{token}" width="1" height="1" style="display:none;" />
+   ```
+   When a mail client loads the pixel, `opened_at` is set and `open_count` is incremented on the `CampaignSend` record.
+
+2. **Click tracking** — every `<a href="...">` in the email is rewritten to go through a redirect proxy:
+   ```
+   /subscribers/tracking/click/{token}?url=<base64-encoded-original-url>
+   ```
+   When a subscriber clicks, the original URL is decoded, `clicked_at` is set, and the click is appended to `click_log` before the redirect.
+
+Both tracking routes are public and do not require authentication. `mailto:` and `#anchor` links are left untouched.
+
+### Disabling Tracking
+
+You can disable tracking globally or individually:
+
+```php
+// config/laravel-subscribers.php
+'tracking' => [
+    'enabled' => false, // disables all tracking
+    'open'    => false, // disables open pixel only
+    'click'   => false, // disables click rewriting only
+],
+```
+
+### Restricting Click Tracking to Specific Domains
+
+To prevent the click proxy from redirecting to arbitrary domains, set an allowlist:
+
+```php
+'tracking' => [
+    'allowed_domains' => ['mysite.com', 'blog.mysite.com'],
+],
+```
+
+Clicks to domains not on the list return a `403` response.
+
+### Tracking Events
+
+Listen to tracking events in your `EventServiceProvider`:
+
+```php
+use Mydnic\Subscribers\Events\EmailOpened;
+use Mydnic\Subscribers\Events\EmailLinkClicked;
+
+protected $listen = [
+    EmailOpened::class => [
+        UpdateAnalyticsDashboardListener::class,
+    ],
+    EmailLinkClicked::class => [
+        LogClickListener::class,
+    ],
+];
+```
+
+Both events carry the `CampaignSend` model (which has the `campaign`, `subscriber`, and all tracking timestamps).
+
+---
+
+## User Sync
+
+You can automatically keep your application's users in sync with the subscribers table.
+
+### HasNewsletterSubscription Trait
+
+Add the `HasNewsletterSubscription` trait to your `User` model. It hooks into Eloquent's `saved` and `deleted` events to mirror the subscription state automatically.
+
+```php
+use Mydnic\Subscribers\Traits\HasNewsletterSubscription;
+
+class User extends Authenticatable
+{
+    use HasNewsletterSubscription;
+}
+```
+
+By default, the trait watches a boolean column called `subscribed_to_newsletter` on your users table. Add it if you haven't already:
+
+```bash
+php artisan make:migration add_subscribed_to_newsletter_to_users_table
+```
+
+```php
+$table->boolean('subscribed_to_newsletter')->default(false);
+```
+
+**How it works:**
+
+- When `subscribed_to_newsletter` changes to `true` → the user's email is added to the `subscribers` table.
+- When `subscribed_to_newsletter` changes to `false` → the subscriber record is soft-deleted.
+- When the user is deleted → the subscriber record is also deleted.
+- If a previously unsubscribed user re-subscribes → the soft-deleted record is restored (no duplicate).
+
+```php
+// These will automatically sync the subscribers table:
+$user->update(['subscribed_to_newsletter' => true]);   // subscribe
+$user->update(['subscribed_to_newsletter' => false]);  // unsubscribe
+$user->delete();                                        // removes subscriber too
+```
+
+**Customising the column names:**
+
+If your column has a different name, override the properties on your model:
+
+```php
+class User extends Authenticatable
+{
+    use HasNewsletterSubscription;
+
+    protected string $subscriberColumn = 'wants_emails';       // your boolean column
+    protected string $subscriberEmailColumn = 'contact_email'; // if not 'email'
+}
+```
+
+**Manual sync trigger:**
+
+You can also call `syncSubscriberRecord()` directly:
+
+```php
+$user->syncSubscriberRecord();
+```
+
+### Artisan Sync Command
+
+To sync your existing users in bulk (e.g. after adding the trait to an app that already has users), use the `subscribers:sync` command:
+
+```bash
+php artisan subscribers:sync "App\Models\User"
+```
+
+This subscribes every user in the table. To only sync users that have opted in:
+
+```bash
+php artisan subscribers:sync "App\Models\User" \
+    --filter=subscribed_to_newsletter \
+    --filter-value=1
+```
+
+To also **remove** subscribers whose users no longer match the filter:
+
+```bash
+php artisan subscribers:sync "App\Models\User" \
+    --filter=subscribed_to_newsletter \
+    --filter-value=1 \
+    --unsubscribe-removed
+```
+
+| Option | Description |
+|--------|-------------|
+| `model` | Fully-qualified model class (required) |
+| `--email-column` | Column holding the email address (default: `email`) |
+| `--filter` | Column to filter by (e.g. `subscribed_to_newsletter`) |
+| `--filter-value` | Value to match (default: `1`) |
+| `--unsubscribe-removed` | Delete subscribers whose record no longer matches the filter |
+
+---
+
+## Events Reference
+
+All events live in the `Mydnic\Subscribers\Events` namespace.
+
+| Event | Fired When | Properties |
+|-------|-----------|------------|
+| `SubscriberCreated` | A new subscriber is saved | `$subscriber` |
+| `SubscriberDeleted` | A subscriber is deleted | `$subscriber` |
+| `SubscriberVerified` | A subscriber verifies their email | `$subscriber` |
+| `CampaignSending` | A campaign's send job starts | `$campaign` |
+| `CampaignSent` | All subscriber jobs are dispatched | `$campaign` |
+| `EmailOpened` | A tracking pixel is loaded | `$send` |
+| `EmailLinkClicked` | A tracked link is clicked | `$send`, `$url` |
+
+---
+
+## Publishing Assets
+
+### Views
+
+Publish and customise the email layout and unsubscribe page:
+
+```bash
+php artisan vendor:publish --tag="subscribers-views"
+```
+
+Files are copied to `resources/views/vendor/laravel-subscribers/`:
+
+```
+resources/views/vendor/laravel-subscribers/
+├── mail/
+│   ├── layouts/
+│   │   └── base.blade.php     ← email HTML shell (header, footer, unsubscribe link)
+│   └── campaign.blade.php     ← default campaign body template
+└── subscriber/
+    └── deleted.blade.php      ← unsubscribe confirmation page
+```
+
+Laravel's view resolution picks up your published files automatically — no config change needed.
+
+### Vue Component
+
+A ready-made Vue subscription form component is available:
+
+```bash
+php artisan vendor:publish --tag="subscribers-vue-component"
+```
+
+Files are copied to `resources/js/components/Subscribers/`. Register and use the component in your application:
+
+```js
+import SubscriberForm from './components/Subscribers/SubscriberForm.vue'
+
+app.component('subscriber-form', SubscriberForm)
+```
+
+```blade
+<subscriber-form></subscriber-form>
+```
+
+---
+
+## Nova Integration
+
+The package ships with a ready-to-use Laravel Nova resource. Register it in your `NovaServiceProvider`:
+
+```php
+use Mydnic\Subscribers\Nova\Resources\Subscriber;
+
+public function resources(): array
+{
+    return [
+        Subscriber::class,
+    ];
+}
+```
+
+The resource includes:
+- An email field with uniqueness validation
+- The `email_verified_at` timestamp
+- A **New Subscribers** trend metric card (30 / 60 / 365 days, MTD, QTD, YTD)
+
+---
+
+## Filament Integration
+
+The package ships with a first-class [Filament](https://filamentphp.com) plugin (v3, v4, and v5 compatible) that gives you a complete admin UI for managing subscribers and campaigns.
+
+### Installation
+
+Filament must be installed and configured in your application first. See the [Filament documentation](https://filamentphp.com/docs/panels/installation) for setup instructions.
+
+### Registering the Plugin
+
+Add `SubscribersPlugin` to your Filament panel provider:
+
+```php
+use Mydnic\Subscribers\Filament\SubscribersPlugin;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->plugins([
+            SubscribersPlugin::make(),
+        ]);
+}
+```
+
+That's it. The plugin automatically registers all resources and widgets in your panel.
+
+### What's Included
+
+#### Resources
+
+**Subscribers** (`/admin/subscribers`)
+
+- Tabbed list: All / Active / Verified / Unverified / Unsubscribed
+- Searchable by email, sortable columns
+- Navigation badge showing the current total count
+- Per-row actions: View, Resend Verification Email
+- Bulk actions: Delete, Force Delete, Restore
+- Detail view with campaign activity stats (campaigns received, opened, clicked)
+
+**Campaigns** (`/admin/campaigns`)
+
+- Tabbed list: All / Drafts / Sending / Sent
+- Navigation badge showing the number of pending drafts
+- Campaign form with rich HTML editor, custom Blade view option, from/reply-to, scheduling
+- Detail view with live stats: sent count, open count, click count, open rate, click rate
+- **Send Test Email** action — opens a modal with an email input; sends an exact copy of the email immediately (not queued); available on campaigns in any status so you can preview a sent campaign too
+- **Send** action with confirmation modal — available only on `draft` campaigns
+- Editing locked for campaigns that have already been sent
+
+#### Widgets
+
+**Subscribers Overview** — a stats panel showing:
+- Total subscribers with a 7-day sparkline chart
+- Verified subscriber count and percentage
+- Total campaigns sent with pending draft count
+
+**New Subscribers Chart** — a full-width line chart of subscriber growth with selectable time ranges (7 / 30 / 90 / 365 days).
+
+Widgets are registered automatically and appear on your Filament dashboard.
+
+### Customising the Plugin
+
+You can toggle individual resources and widgets:
+
+```php
+SubscribersPlugin::make()
+    ->subscriberResource()          // default: true
+    ->campaignResource()            // default: true
+    ->subscribersOverviewWidget()   // default: true
+    ->newSubscribersChartWidget()   // default: true
+```
+
+Pass `false` to disable any of them:
+
+```php
+SubscribersPlugin::make()
+    ->newSubscribersChartWidget(false) // hide the chart widget
+```
+
+### Navigation Group
+
+Both resources are placed under a **Newsletter** navigation group. To move them elsewhere, publish and extend the resource classes or override the navigation group in a service provider:
+
+```php
+use Mydnic\Subscribers\Filament\Resources\SubscriberResource;
+use Mydnic\Subscribers\Filament\Resources\CampaignResource;
+
+SubscriberResource::navigationGroup('Marketing');
+CampaignResource::navigationGroup('Marketing');
+```
+
+---
+
+## Upgrading
+
+### From v1.x to v2.x
+
+v2 is a breaking release. The following changes require attention:
+
+**PHP and Laravel requirements**
+
+- PHP 7.x is no longer supported. Requires **PHP 8.1+**.
+- Laravel 8 and 9 are no longer supported. Requires **Laravel 10+**.
+
+**Model namespace**
+
+The `Subscriber` model has moved from `Mydnic\Subscribers\Subscriber` to `Mydnic\Subscribers\Models\Subscriber`.
+
+The old class still exists as a deprecated alias, so existing code continues to work, but you should update your imports:
+
+```php
+// Before
+use Mydnic\Subscribers\Subscriber;
+
+// After
+use Mydnic\Subscribers\Models\Subscriber;
+```
+
+**Migrations**
+
+Publish and run the new migrations to create the `campaigns` and `campaign_sends` tables:
+
+```bash
+php artisan vendor:publish --tag="subscribers-migrations"
+php artisan migrate
+```
+
+**Events**
+
+The three subscriber events (`SubscriberCreated`, `SubscriberDeleted`, `SubscriberVerified`) no longer implement `ShouldBroadcast`. If you were broadcasting these events, re-implement broadcasting in your own listeners.
+
+---
+
+## License
+
+The MIT License (MIT). See [LICENSE](LICENSE) for details.

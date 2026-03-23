@@ -1,10 +1,13 @@
 {
     "name": "mydnic/laravel-subscribers",
-    "description": "Easily Manage Internal Newsletter Subscribers in Laravel",
+    "description": "Easily Manage Internal Newsletter Subscribers in Laravel — with campaigns, mail sending, and tracking",
     "keywords": [
         "laravel",
-        "customer",
-        "feedback"
+        "newsletter",
+        "subscribers",
+        "email",
+        "campaigns",
+        "tracking"
     ],
     "license": "MIT",
     "homepage": "https://github.com/mydnic/laravel-subscribers",
@@ -15,13 +18,16 @@
         }
     ],
     "require": {
-        "php": "^7.1|8.*",
-        "laravel/framework": ">=8.40.0"
+        "php": "^8.1",
+        "laravel/framework": "^10.0|^11.0|^12.0"
+    },
+    "suggest": {
+        "filament/filament": "Required to use the Filament admin panel integration (^3.0|^4.0|^5.0)"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5",
-        "orchestra/testbench": "^6.17.0",
-        "mockery/mockery": "^1.3"
+        "phpunit/phpunit": "^10.5|^11.0",
+        "orchestra/testbench": "^8.0|^9.0",
+        "mockery/mockery": "^1.6"
     },
     "autoload": {
         "psr-4": {

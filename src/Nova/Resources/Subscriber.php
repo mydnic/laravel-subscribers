@@ -3,44 +3,21 @@
 namespace Mydnic\Subscribers\Nova\Resources;
 
 use App\Nova\Resource;
+use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\ID;
-use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Mydnic\Subscribers\Nova\Metrics\NewSubscribers;
 
 class Subscriber extends Resource
 {
-    /**
-     * The model the resource corresponds to.
-     *
-     * @var string
-     */
-    public static $model = 'Mydnic\Subscribers\Subscriber';
+    public static string $model = \Mydnic\Subscribers\Models\Subscriber::class;
 
-    /**
-     * The single value that should be used to represent the resource when being displayed.
-     *
-     * @var string
-     */
     public static $title = 'email';
 
-    /**
-     * The columns that should be searched.
-     *
-     * @var array
-     */
-    public static $search = [
-        'id', 'email'
-    ];
+    public static $search = ['id', 'email'];
 
-    /**
-     * Get the fields displayed by the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    public function fields(Request $request)
+    public function fields(NovaRequest $request): array
     {
         return [
             ID::make()->sortable(),
@@ -50,51 +27,31 @@ class Subscriber extends Resource
                 ->rules('required', 'email', 'max:255')
                 ->creationRules('unique:subscribers,email')
                 ->updateRules('unique:subscribers,email,{{resourceId}}'),
+
+            DateTime::make('Verified At', 'email_verified_at')
+                ->nullable()
+                ->sortable(),
         ];
     }
 
-    /**
-     * Get the cards available for the request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    public function cards(Request $request)
+    public function cards(NovaRequest $request): array
     {
         return [
             new NewSubscribers,
         ];
     }
 
-    /**
-     * Get the filters available for the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    public function filters(Request $request)
+    public function filters(NovaRequest $request): array
     {
         return [];
     }
 
-    /**
-     * Get the lenses available for the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    public function lenses(Request $request)
+    public function lenses(NovaRequest $request): array
     {
         return [];
     }
 
-    /**
-     * Get the actions available for the resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    public function actions(Request $request)
+    public function actions(NovaRequest $request): array
     {
         return [];
     }
