@@ -21,7 +21,7 @@ A lightweight newsletter subscriber management package for Laravel. Handle subsc
 - **User sync** — automatically sync your `User` model with the subscribers table via a trait or Artisan command
 - **Publishable views** — override the email layout and unsubscribe page in your own app
 - **Nova integration** — Laravel Nova resource and metrics card included
-- **Filament integration** — full Filament v3 plugin with resources, infolists, and widgets
+- **Filament integration** — full Filament plugin with resources, infolists, and widgets
 - **Events** — every action fires an event you can listen to
 
 ---
