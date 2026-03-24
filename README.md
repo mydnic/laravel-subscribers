@@ -29,7 +29,7 @@ A lightweight newsletter subscriber management package for Laravel. Handle subsc
 ## Requirements
 
 - PHP 8.1+
-- Laravel 10, 11, or 12
+- Laravel >= 10
 
 ---
 
