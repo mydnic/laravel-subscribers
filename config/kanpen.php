@@ -3,6 +3,19 @@
 return [
     /*
      |--------------------------------------------------------------------------
+     | Table Names
+     |--------------------------------------------------------------------------
+     | Customize these if the default names conflict with your existing tables.
+     */
+    'tables' => [
+        'subscribers' => 'kanpen_subscribers',
+        'campaigns' => 'kanpen_campaigns',
+        'campaign_deliveries' => 'kanpen_campaign_deliveries',
+        'campaign_clicks' => 'kanpen_campaign_clicks',
+    ],
+
+    /*
+     |--------------------------------------------------------------------------
      | Email Verification
      |--------------------------------------------------------------------------
      | When enabled, subscribers must verify their email before being considered active.
@@ -11,31 +24,21 @@ return [
 
     /*
      |--------------------------------------------------------------------------
+     | Verification Email Expiration
+     |--------------------------------------------------------------------------
+     | How long (in minutes) the email verification link remains valid.
+     | To customize the email content, publish and override the notification:
+     | php artisan vendor:publish --tag=kanpen-notifications
+     */
+    'verification_expiration' => 60,
+
+    /*
+     |--------------------------------------------------------------------------
      | Redirect URL
      |--------------------------------------------------------------------------
      | Named route to redirect to after subscription (web form only).
      */
     'redirect_url' => 'home',
-
-    /*
-     |--------------------------------------------------------------------------
-     | Verification Email Content
-     |--------------------------------------------------------------------------
-     */
-    'mail' => [
-        'verify' => [
-            'expiration' => 60, // in minutes
-            'subject' => 'Verify Email Address',
-            'greeting' => 'Hello!',
-            'content' => [
-                'Please click the button below to verify your email address.',
-            ],
-            'action' => 'Verify Email Address',
-            'footer' => [
-                'If you did not sign up for our newsletter, no further action is required.',
-            ],
-        ],
-    ],
 
     /*
      |--------------------------------------------------------------------------

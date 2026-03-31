@@ -8,17 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('subscribers', function (Blueprint $table) {
+        Schema::create(config('kanpen.tables.subscribers'), function (Blueprint $table) {
             $table->id();
             $table->string('email')->unique();
+            $table->string('unsubscribe_token', 64)->unique();
+            $table->timestamp('email_verified_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->timestamp('email_verified_at')->nullable();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('subscribers');
+        Schema::dropIfExists(config('kanpen.tables.subscribers'));
     }
 };
