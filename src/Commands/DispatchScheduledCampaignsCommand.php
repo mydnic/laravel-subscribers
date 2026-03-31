@@ -16,7 +16,6 @@ class DispatchScheduledCampaignsCommand extends Command
     public function handle(SendCampaignAction $action): int
     {
         $due = Campaign::where('status', CampaignStatus::Draft)
-            ->whereNotNull('scheduled_at')
             ->where('scheduled_at', '<=', now())
             ->get();
 
@@ -29,13 +28,9 @@ class DispatchScheduledCampaignsCommand extends Command
         $dispatched = 0;
 
         foreach ($due as $campaign) {
-            try {
-                $action->execute($campaign);
-                $this->info("Dispatched: [{$campaign->id}] {$campaign->name}");
-                $dispatched++;
-            } catch (\Throwable $e) {
-                $this->error("Failed [{$campaign->id}] {$campaign->name}: {$e->getMessage()}");
-            }
+            $action->execute($campaign);
+            $this->info("Dispatched: [{$campaign->id}] {$campaign->name}");
+            $dispatched++;
         }
 
         $this->info("Done. {$dispatched} / {$due->count()} campaign(s) dispatched.");
