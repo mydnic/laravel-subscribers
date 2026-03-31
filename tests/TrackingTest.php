@@ -84,7 +84,7 @@ class TrackingTest extends TestCase
 
         $send->refresh();
         $this->assertNotNull($send->clicked_at);
-        $this->assertCount(1, $send->click_log);
+        $this->assertCount(1, $send->clicks);
 
         Event::assertDispatched(EmailLinkClicked::class);
     }

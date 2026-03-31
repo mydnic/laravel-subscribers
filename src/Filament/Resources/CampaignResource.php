@@ -22,6 +22,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Mydnic\Kanpen\Actions\SendCampaignAction;
+use Mydnic\Kanpen\Models\CampaignClick;
 use Mydnic\Kanpen\Actions\SendTestCampaignAction;
 use Mydnic\Kanpen\Enums\CampaignStatus;
 use Mydnic\Kanpen\Filament\Resources\CampaignResource\Pages\CreateCampaign;
@@ -84,11 +85,6 @@ class CampaignResource extends Resource
                     ->email()
                     ->maxLength(255),
 
-                TextInput::make('view')
-                    ->label('Blade View')
-                    ->placeholder('emails.newsletter')
-                    ->helperText('Use a custom Blade view instead of the HTML editor below.')
-                    ->maxLength(255),
             ])->columns(2),
 
             Section::make('Content')->schema([
@@ -119,39 +115,43 @@ class CampaignResource extends Resource
     {
         return $infolist->schema([
             InfoSection::make('Stats')->schema([
-                Grid::make(5)->schema([
-                    TextEntry::make('sent_count')
+                Grid::make(6)->schema([
+                    TextEntry::make('sent')
                         ->label('Sent')
-                        ->numeric(),
+                        ->state(fn (Campaign $record): int => $record->deliveries()->count()),
 
                     TextEntry::make('opens')
                         ->label('Opened')
-                        ->state(fn (Campaign $record): int => $record->sends()->whereNotNull('opened_at')->count()),
+                        ->state(fn (Campaign $record): int => $record->deliveries()->whereNotNull('opened_at')->count()),
 
                     TextEntry::make('open_rate')
                         ->label('Open Rate')
                         ->state(function (Campaign $record): string {
-                            $sent = $record->sends()->whereNotNull('sent_at')->count();
+                            $sent = $record->deliveries()->count();
                             if ($sent === 0) {
                                 return '—';
                             }
-                            $opened = $record->sends()->whereNotNull('opened_at')->count();
+                            $opened = $record->deliveries()->whereNotNull('opened_at')->count();
 
                             return round($opened / $sent * 100, 1).'%';
                         }),
 
-                    TextEntry::make('clicks')
-                        ->label('Clicked')
-                        ->state(fn (Campaign $record): int => $record->sends()->whereNotNull('clicked_at')->count()),
+                    TextEntry::make('unique_clicks')
+                        ->label('Unique Clicks')
+                        ->state(fn (Campaign $record): int => $record->deliveries()->whereNotNull('clicked_at')->count()),
+
+                    TextEntry::make('total_clicks')
+                        ->label('Total Clicks')
+                        ->state(fn (Campaign $record): int => $record->clicks()->count()),
 
                     TextEntry::make('click_rate')
                         ->label('Click Rate')
                         ->state(function (Campaign $record): string {
-                            $sent = $record->sends()->whereNotNull('sent_at')->count();
+                            $sent = $record->deliveries()->count();
                             if ($sent === 0) {
                                 return '—';
                             }
-                            $clicked = $record->sends()->whereNotNull('clicked_at')->count();
+                            $clicked = $record->deliveries()->whereNotNull('clicked_at')->count();
 
                             return round($clicked / $sent * 100, 1).'%';
                         }),
@@ -181,10 +181,6 @@ class CampaignResource extends Resource
 
                 TextEntry::make('reply_to')
                     ->placeholder('—'),
-
-                TextEntry::make('view')
-                    ->label('Blade View')
-                    ->placeholder('None (uses HTML content)'),
 
                 TextEntry::make('scheduled_at')
                     ->dateTime()
@@ -234,20 +230,28 @@ class CampaignResource extends Resource
                     })
                     ->sortable(),
 
-                TextColumn::make('sent_count')
-                    ->label('Sent')
-                    ->numeric()
-                    ->sortable(),
-
                 TextColumn::make('open_rate')
                     ->label('Open Rate')
                     ->state(function (Campaign $record): string {
-                        if ($record->sent_count === 0) {
+                        $sent = $record->deliveries()->count();
+                        if ($sent === 0) {
                             return '—';
                         }
-                        $opened = $record->sends()->whereNotNull('opened_at')->count();
+                        $opened = $record->deliveries()->whereNotNull('opened_at')->count();
 
-                        return round($opened / $record->sent_count * 100, 1).'%';
+                        return round($opened / $sent * 100, 1).'%';
+                    }),
+
+                TextColumn::make('click_rate')
+                    ->label('Click Rate')
+                    ->state(function (Campaign $record): string {
+                        $sent = $record->deliveries()->count();
+                        if ($sent === 0) {
+                            return '—';
+                        }
+                        $clicked = $record->deliveries()->whereNotNull('clicked_at')->count();
+
+                        return round($clicked / $sent * 100, 1).'%';
                     }),
 
                 TextColumn::make('sent_at')

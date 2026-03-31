@@ -35,11 +35,9 @@ class SendCampaignJob implements ShouldQueue
             $query->whereNotNull('email_verified_at');
         }
 
-        $sentCount = 0;
-
         $queue = config('kanpen.campaigns.queue', 'default');
 
-        $query->chunk(100, function ($subscribers) use (&$sentCount, $queue) {
+        $query->chunk(100, function ($subscribers) use ($queue) {
             foreach ($subscribers as $subscriber) {
                 $send = CampaignDelivery::create([
                     'campaign_id' => $this->campaign->id,
@@ -48,13 +46,11 @@ class SendCampaignJob implements ShouldQueue
                 ]);
 
                 SendCampaignToSubscriberJob::dispatch($send)->onQueue($queue);
-                $sentCount++;
             }
         });
 
         $this->campaign->update([
             'status' => CampaignStatus::Sent,
-            'sent_count' => $sentCount,
             'sent_at' => now(),
         ]);
 

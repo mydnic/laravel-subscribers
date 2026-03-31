@@ -8,6 +8,7 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Mydnic\Kanpen\Events\EmailLinkClicked;
 use Mydnic\Kanpen\Events\EmailOpened;
+use Mydnic\Kanpen\Models\CampaignClick;
 use Mydnic\Kanpen\Models\CampaignDelivery;
 
 class TrackingController extends Controller
@@ -61,13 +62,13 @@ class TrackingController extends Controller
         }
 
         if ($send) {
-            $clickLog = $send->click_log ?? [];
-            $clickLog[] = ['url' => $url, 'clicked_at' => now()->toISOString()];
-
-            $send->update([
-                'click_log' => $clickLog,
-                'clicked_at' => $send->clicked_at ?? now(),
+            CampaignClick::create([
+                'campaign_delivery_id' => $send->id,
+                'url' => $url,
+                'clicked_at' => now(),
             ]);
+
+            $send->update(['clicked_at' => $send->clicked_at ?? now()]);
 
             EmailLinkClicked::dispatch($send, $url);
         }

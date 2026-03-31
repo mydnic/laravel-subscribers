@@ -31,35 +31,15 @@ class CampaignMail extends Mailable
             ?? config('kanpen.campaigns.from.name')
             ?? config('mail.from.name');
 
-        $envelope = new Envelope(
+        return new Envelope(
             from: new Address($fromEmail, $fromName),
+            replyTo: $this->campaign->reply_to ? [new Address($this->campaign->reply_to)] : [],
             subject: $this->campaign->subject,
         );
-
-        if ($this->campaign->reply_to) {
-            $envelope = new Envelope(
-                from: new Address($fromEmail, $fromName),
-                replyTo: [new Address($this->campaign->reply_to)],
-                subject: $this->campaign->subject,
-            );
-        }
-
-        return $envelope;
     }
 
     public function content(): Content
     {
-        if ($this->campaign->view) {
-            return new Content(
-                view: $this->campaign->view,
-                with: [
-                    'campaign' => $this->campaign,
-                    'send' => $this->send,
-                    'subscriber' => $this->send->subscriber,
-                ],
-            );
-        }
-
         return new Content(
             view: 'kanpen::mail.campaign',
             with: [

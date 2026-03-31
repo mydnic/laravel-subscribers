@@ -7,22 +7,19 @@ use Mydnic\Kanpen\Models\Subscriber;
 
 /**
  * Add this trait to your User model (or any Eloquent model with an email column)
- * to integrate it with the subscribers table automatically.
+ * to automatically sync it with the subscribers table.
  *
- * The trait observes model saves and syncs the subscriber record based on the
- * value of a boolean column (default: `subscribed_to_newsletter`).
+ * You must implement shouldBeSubscribed() on your model to define the subscription condition:
  *
- * Usage in your model:
- *
- *   use HasNewsletterSubscription;
- *
- * Optionally override the defaults:
- *
- *   protected string $subscriberColumn = 'wants_newsletter';
- *   protected string $subscriberEmailColumn = 'email';
+ *   public function shouldBeSubscribed(): bool
+ *   {
+ *       return $this->subscribed_to_newsletter && $this->email_verified_at !== null;
+ *   }
  */
 trait HasNewsletterSubscription
 {
+    abstract public function shouldBeSubscribed(): bool;
+
     public static function bootHasNewsletterSubscription(): void
     {
         static::saved(function ($model) {
@@ -46,7 +43,7 @@ trait HasNewsletterSubscription
             return;
         }
 
-        if ($this->wantsNewsletter()) {
+        if ($this->shouldBeSubscribed()) {
             $existing = Subscriber::withTrashed()->where('email', $email)->first();
 
             if ($existing && $existing->trashed()) {
@@ -59,34 +56,39 @@ trait HasNewsletterSubscription
         }
     }
 
-    public function wantsNewsletter(): bool
-    {
-        $column = $this->getSubscriberColumn();
-
-        return (bool) ($this->{$column} ?? false);
-    }
-
-    public function getSubscriberColumn(): string
-    {
-        return property_exists($this, 'subscriberColumn')
-            ? $this->subscriberColumn
-            : 'subscribed_to_newsletter';
-    }
-
-    public function getSubscriberEmailColumn(): string
-    {
-        return property_exists($this, 'subscriberEmailColumn')
-            ? $this->subscriberEmailColumn
-            : 'email';
-    }
-
     public function getSubscriberEmail(): string
     {
-        return (string) ($this->{$this->getSubscriberEmailColumn()} ?? '');
+        return (string) ($this->email ?? '');
     }
 
     public function subscriber(): ?Builder
     {
         return Subscriber::where('email', $this->getSubscriberEmail());
+    }
+
+    public function subscribe(): void
+    {
+        $email = $this->getSubscriberEmail();
+        $subscriber = Subscriber::withTrashed()->where('email', $email)->first();
+
+        if ($subscriber && $subscriber->trashed()) {
+            $subscriber->restore();
+        } elseif (! $subscriber) {
+            $subscriber = Subscriber::create(['email' => $email]);
+        }
+
+        if (config('kanpen.verify') && ! $subscriber->hasVerifiedEmail()) {
+            $subscriber->sendEmailVerificationNotification();
+        }
+    }
+
+    public function unsubscribe(): void
+    {
+        Subscriber::where('email', $this->getSubscriberEmail())->delete();
+    }
+
+    public function isSubscribed(): bool
+    {
+        return Subscriber::where('email', $this->getSubscriberEmail())->exists();
     }
 }

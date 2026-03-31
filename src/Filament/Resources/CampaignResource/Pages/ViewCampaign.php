@@ -70,7 +70,7 @@ class ViewCampaign extends ViewRecord
                             ->success()
                             ->send();
 
-                        $this->refreshFormData(['status', 'sent_count', 'sent_at']);
+                        $this->refreshFormData(['status', 'sent_at']);
                     } catch (\Exception $e) {
                         Notification::make()
                             ->title('Could not send campaign')

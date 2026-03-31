@@ -4,6 +4,7 @@ namespace Mydnic\Kanpen\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Mydnic\Kanpen\Enums\CampaignStatus;
 
@@ -11,7 +12,11 @@ class Campaign extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'campaigns';
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->setTable(config('kanpen.tables.campaigns'));
+    }
 
     protected $fillable = [
         'name',
@@ -20,7 +25,7 @@ class Campaign extends Model
         'from_email',
         'reply_to',
         'content_html',
-        'view',
+        'sent_at',
         'status',
         'scheduled_at',
     ];
@@ -31,9 +36,14 @@ class Campaign extends Model
         'sent_at' => 'datetime',
     ];
 
-    public function sends(): HasMany
+    public function deliveries(): HasMany
     {
         return $this->hasMany(CampaignDelivery::class);
+    }
+
+    public function clicks(): HasManyThrough
+    {
+        return $this->hasManyThrough(CampaignClick::class, CampaignDelivery::class);
     }
 
     public function isDraft(): bool

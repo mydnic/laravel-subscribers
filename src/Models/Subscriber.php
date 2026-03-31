@@ -15,7 +15,11 @@ class Subscriber extends Model
 {
     use Notifiable, SoftDeletes;
 
-    protected $table = 'subscribers';
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->setTable(config('kanpen.tables.subscribers'));
+    }
 
     protected $fillable = [
         'email',
@@ -34,7 +38,7 @@ class Subscriber extends Model
         });
     }
 
-    public function sends(): HasMany
+    public function deliveries(): HasMany
     {
         return $this->hasMany(CampaignDelivery::class);
     }

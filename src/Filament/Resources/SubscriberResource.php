@@ -95,15 +95,15 @@ class SubscriberResource extends Resource
             Section::make('Campaign Activity')->schema([
                 TextEntry::make('sends_count')
                     ->label('Campaigns Received')
-                    ->state(fn (Subscriber $record): int => $record->sends()->count()),
+                    ->state(fn (Subscriber $record): int => $record->deliveries()->count()),
 
                 TextEntry::make('opens_count')
                     ->label('Campaigns Opened')
-                    ->state(fn (Subscriber $record): int => $record->sends()->whereNotNull('opened_at')->count()),
+                    ->state(fn (Subscriber $record): int => $record->deliveries()->whereNotNull('opened_at')->count()),
 
                 TextEntry::make('clicks_count')
                     ->label('Links Clicked')
-                    ->state(fn (Subscriber $record): int => $record->sends()->whereNotNull('clicked_at')->count()),
+                    ->state(fn (Subscriber $record): int => $record->deliveries()->whereNotNull('clicked_at')->count()),
             ])->columns(3),
         ]);
     }

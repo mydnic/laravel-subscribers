@@ -110,10 +110,9 @@ class CampaignTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson(['sent' => true]);
 
-        // Campaign status and sent_count must not change
+        // Campaign status must not change
         $campaign->refresh();
         $this->assertEquals('draft', $campaign->status->value);
-        $this->assertEquals(0, $campaign->sent_count);
         $this->assertNull($campaign->sent_at);
 
         // No CampaignDelivery records created

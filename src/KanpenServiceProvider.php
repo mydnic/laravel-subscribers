@@ -43,7 +43,7 @@ class KanpenServiceProvider extends ServiceProvider
                 __DIR__.'/../database/migrations/2018_01_01_000000_create_subscribers_table.php' => database_path('migrations/2018_01_01_000000_kanpen_create_subscribers_table.php'),
                 __DIR__.'/../database/migrations/2024_01_01_000001_create_campaigns_table.php' => database_path('migrations/2024_01_01_000001_kanpen_create_campaigns_table.php'),
                 __DIR__.'/../database/migrations/2024_01_01_000002_create_campaign_deliveries_table.php' => database_path('migrations/2024_01_01_000002_kanpen_create_campaign_deliveries_table.php'),
-                __DIR__.'/../database/migrations/2024_01_01_000003_add_unsubscribe_token_to_subscribers_table.php' => database_path('migrations/2024_01_01_000003_kanpen_add_unsubscribe_token_to_subscribers_table.php'),
+                __DIR__.'/../database/migrations/2024_01_01_000004_create_campaign_clicks_table.php' => database_path('migrations/2024_01_01_000004_kanpen_create_campaign_clicks_table.php'),
             ], 'kanpen-migrations');
 
             $this->publishes([
@@ -53,6 +53,10 @@ class KanpenServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../resources/views' => resource_path('views/vendor/kanpen'),
             ], 'kanpen-views');
+
+            $this->publishes([
+                __DIR__.'/Notifications/SubscriberVerifyEmail.php' => app_path('Notifications/SubscriberVerifyEmail.php'),
+            ], 'kanpen-notifications');
         }
     }
 

@@ -6,94 +6,32 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\URL;
 
 class SubscriberVerifyEmail extends Notification
 {
     use Queueable;
 
-    /**
-     * Create a new notification instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function via($notifiable)
+    public function via($notifiable): array
     {
         return ['mail'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return MailMessage
-     */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
-        $verificationUrl = $this->verificationUrl($notifiable);
-
-        $mail = new MailMessage;
-
-        $mail->subject(Lang::get(config('kanpen.mail.verify.subject', 'Verify Email Address')));
-        $mail->greeting(Lang::get(config('kanpen.mail.verify.greeting', 'Hello!')));
-
-        if (! empty(config('kanpen.mail.verify.content'))) {
-            foreach (config('kanpen.mail.verify.content') as $value) {
-                $mail->line(Lang::get($value));
-            }
-        } else {
-            $mail->line(Lang::get('Please click the button below to verify your email address.'));
-        }
-
-        $mail->action(Lang::get(config('kanpen.mail.verify.action', 'Verify Email Address')), $verificationUrl);
-
-        if (! empty(config('kanpen.mail.verify.footer'))) {
-            foreach (config('kanpen.mail.verify.footer') as $value) {
-                $mail->line(Lang::get($value));
-            }
-        } else {
-            $mail->line(Lang::get('If you did not sign up for our newsletter, no further action is required.'));
-        }
-
-        return $mail;
+        return (new MailMessage)
+            ->subject('Verify Email Address')
+            ->greeting('Hello!')
+            ->line('Please click the button below to verify your email address.')
+            ->action('Verify Email Address', $this->verificationUrl($notifiable))
+            ->line('If you did not sign up for our newsletter, no further action is required.');
     }
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
-    {
-        return [
-            //
-        ];
-    }
-
-    /**
-     * Get the verification URL for the given notifiable.
-     *
-     * @param  mixed  $notifiable
-     * @return string
-     */
-    protected function verificationUrl($notifiable)
+    protected function verificationUrl($notifiable): string
     {
         return URL::temporarySignedRoute(
             'kanpen.verify',
-            Carbon::now()->addMinutes(config('kanpen.mail.verify.expiration')),
+            Carbon::now()->addMinutes(config('kanpen.verification_expiration', 60)),
             [
                 'id' => $notifiable->getKey(),
                 'hash' => sha1($notifiable->getEmailForVerification()),

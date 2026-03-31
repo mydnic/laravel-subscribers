@@ -43,20 +43,21 @@ abstract class TestCase extends Orchestra
 
     protected function setUpDatabase(): void
     {
-        Schema::dropIfExists('campaign_deliveries');
-        Schema::dropIfExists('campaigns');
-        Schema::dropIfExists('subscribers');
+        Schema::dropIfExists(config('kanpen.tables.campaign_clicks'));
+        Schema::dropIfExists(config('kanpen.tables.campaign_deliveries'));
+        Schema::dropIfExists(config('kanpen.tables.campaigns'));
+        Schema::dropIfExists(config('kanpen.tables.subscribers'));
 
-        Schema::create('subscribers', function (Blueprint $table) {
+        Schema::create(config('kanpen.tables.subscribers'), function (Blueprint $table) {
             $table->id();
             $table->string('email')->unique();
-            $table->string('unsubscribe_token', 64)->nullable()->unique();
+            $table->string('unsubscribe_token', 64)->unique();
+            $table->timestamp('email_verified_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
-            $table->timestamp('email_verified_at')->nullable();
         });
 
-        Schema::create('campaigns', function (Blueprint $table) {
+        Schema::create(config('kanpen.tables.campaigns'), function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('subject');
@@ -64,26 +65,30 @@ abstract class TestCase extends Orchestra
             $table->string('from_email')->nullable();
             $table->string('reply_to')->nullable();
             $table->longText('content_html')->nullable();
-            $table->string('view')->nullable();
             $table->string('status')->default('draft');
-            $table->unsignedBigInteger('sent_count')->default(0);
             $table->timestamp('scheduled_at')->nullable();
             $table->timestamp('sent_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
 
-        Schema::create('campaign_deliveries', function (Blueprint $table) {
+        Schema::create(config('kanpen.tables.campaign_deliveries'), function (Blueprint $table) {
             $table->id();
-            $table->foreignId('campaign_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('subscriber_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('campaign_id')->constrained(config('kanpen.tables.campaigns'))->cascadeOnDelete();
+            $table->foreignId('subscriber_id')->constrained(config('kanpen.tables.subscribers'))->cascadeOnDelete();
             $table->string('token', 64)->unique();
             $table->timestamp('sent_at')->nullable();
             $table->timestamp('opened_at')->nullable();
             $table->unsignedInteger('open_count')->default(0);
             $table->timestamp('clicked_at')->nullable();
-            $table->json('click_log')->nullable();
             $table->timestamps();
+        });
+
+        Schema::create(config('kanpen.tables.campaign_clicks'), function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('campaign_delivery_id')->constrained(config('kanpen.tables.campaign_deliveries'))->cascadeOnDelete();
+            $table->string('url');
+            $table->timestamp('clicked_at');
         });
     }
 }

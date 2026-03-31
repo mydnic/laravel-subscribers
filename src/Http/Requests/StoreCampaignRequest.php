@@ -20,7 +20,6 @@ class StoreCampaignRequest extends FormRequest
             'from_email' => ['nullable', 'email'],
             'reply_to' => ['nullable', 'email'],
             'content_html' => ['nullable', 'string'],
-            'view' => ['nullable', 'string', 'max:255'],
             'scheduled_at' => ['nullable', 'date', 'after:now'],
         ];
     }

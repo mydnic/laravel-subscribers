@@ -178,14 +178,14 @@ Duplicate emails return a `422 Unprocessable Entity` with a validation error.
 
 ### Programmatic Subscription
 
-Add the `CanSubscribe` trait to any Eloquent model that has an `email` attribute:
+Add the `HasNewsletterSubscription` trait to any Eloquent model that has an `email` attribute:
 
 ```php
-use Mydnic\Kanpen\Traits\CanSubscribe;
+use Mydnic\Kanpen\Traits\HasNewsletterSubscription;
 
 class User extends Authenticatable
 {
-    use CanSubscribe;
+    use HasNewsletterSubscription;
 }
 ```
 
@@ -498,7 +498,7 @@ You can automatically keep your application's users in sync with the subscribers
 
 ### HasNewsletterSubscription Trait
 
-Add the `HasNewsletterSubscription` trait to your `User` model. It hooks into Eloquent's `saved` and `deleted` events to mirror the subscription state automatically.
+Add the `HasNewsletterSubscription` trait to your `User` model and implement `shouldBeSubscribed()` to define your own subscription condition.
 
 ```php
 use Mydnic\Kanpen\Traits\HasNewsletterSubscription;
@@ -506,46 +506,29 @@ use Mydnic\Kanpen\Traits\HasNewsletterSubscription;
 class User extends Authenticatable
 {
     use HasNewsletterSubscription;
+
+    public function shouldBeSubscribed(): bool
+    {
+        return $this->subscribed_to_newsletter;
+    }
 }
 ```
 
-By default, the trait watches a boolean column called `subscribed_to_newsletter` on your users table. Add it if you haven't already:
-
-```bash
-php artisan make:migration add_subscribed_to_newsletter_to_users_table
-```
+Any logic works — check a column, a role, a plan, a combination:
 
 ```php
-$table->boolean('subscribed_to_newsletter')->default(false);
+public function shouldBeSubscribed(): bool
+{
+    return $this->marketing_emails && $this->email_verified_at !== null;
+}
 ```
 
 **How it works:**
 
-- When `subscribed_to_newsletter` changes to `true` → the user's email is added to the `subscribers` table.
-- When `subscribed_to_newsletter` changes to `false` → the subscriber record is soft-deleted.
-- When the user is deleted → the subscriber record is also deleted.
+- When the model is saved and `shouldBeSubscribed()` returns `true` → the email is added to the subscribers table.
+- When `shouldBeSubscribed()` returns `false` → the subscriber record is soft-deleted.
+- When the user is hard-deleted → the subscriber record is force-deleted.
 - If a previously unsubscribed user re-subscribes → the soft-deleted record is restored (no duplicate).
-
-```php
-// These will automatically sync the subscribers table:
-$user->update(['subscribed_to_newsletter' => true]);   // subscribe
-$user->update(['subscribed_to_newsletter' => false]);  // unsubscribe
-$user->delete();                                        // removes subscriber too
-```
-
-**Customising the column names:**
-
-If your column has a different name, override the properties on your model:
-
-```php
-class User extends Authenticatable
-{
-    use HasNewsletterSubscription;
-
-    protected string $subscriberColumn = 'wants_emails';       // your boolean column
-    protected string $subscriberEmailColumn = 'contact_email'; // if not 'email'
-}
-```
 
 **Manual sync trigger:**
 

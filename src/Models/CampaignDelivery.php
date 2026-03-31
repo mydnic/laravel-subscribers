@@ -4,10 +4,15 @@ namespace Mydnic\Kanpen\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CampaignDelivery extends Model
 {
-    protected $table = 'campaign_deliveries';
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->setTable(config('kanpen.tables.campaign_deliveries'));
+    }
 
     protected $fillable = [
         'campaign_id',
@@ -17,14 +22,12 @@ class CampaignDelivery extends Model
         'opened_at',
         'open_count',
         'clicked_at',
-        'click_log',
     ];
 
     protected $casts = [
         'sent_at' => 'datetime',
         'opened_at' => 'datetime',
         'clicked_at' => 'datetime',
-        'click_log' => 'array',
     ];
 
     public function campaign(): BelongsTo
@@ -35,5 +38,10 @@ class CampaignDelivery extends Model
     public function subscriber(): BelongsTo
     {
         return $this->belongsTo(Subscriber::class);
+    }
+
+    public function clicks(): HasMany
+    {
+        return $this->hasMany(CampaignClick::class);
     }
 }

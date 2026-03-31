@@ -18,16 +18,16 @@ class SendCampaignToSubscriberJob implements ShouldQueue
     public int $tries = 3;
 
     public function __construct(
-        public readonly CampaignDelivery $send,
+        public readonly CampaignDelivery $delivery,
     ) {}
 
     public function handle(): void
     {
-        $send = $this->send->load(['campaign', 'subscriber']);
+        $delivery = $this->delivery->load(['campaign', 'subscriber']);
 
-        Mail::to($send->subscriber->email)
-            ->send(new CampaignMail($send->campaign, $send));
+        Mail::to($delivery->subscriber->email)
+            ->send(new CampaignMail($delivery->campaign, $delivery));
 
-        $send->update(['sent_at' => now()]);
+        $delivery->update(['sent_at' => now()]);
     }
 }
