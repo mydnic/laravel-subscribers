@@ -498,7 +498,7 @@ You can automatically keep your application's users in sync with the subscribers
 
 ### HasNewsletterSubscription Trait
 
-Add the `HasNewsletterSubscription` trait to your `User` model and implement `shouldBeSubscribed()` to define your own subscription condition.
+Add the `HasNewsletterSubscription` trait to your `User` model and implement the two required methods.
 
 ```php
 use Mydnic\Kanpen\Traits\HasNewsletterSubscription;
@@ -507,19 +507,24 @@ class User extends Authenticatable
 {
     use HasNewsletterSubscription;
 
+    /**
+     * Define when this user should be a subscriber.
+     * Any logic works — check a column, a role, a plan, a combination.
+     */
     public function shouldBeSubscribed(): bool
     {
         return $this->subscribed_to_newsletter;
     }
-}
-```
 
-Any logic works — check a column, a role, a plan, a combination:
-
-```php
-public function shouldBeSubscribed(): bool
-{
-    return $this->marketing_emails && $this->email_verified_at !== null;
+    /**
+     * Called automatically when the subscriber is removed from outside your app
+     * (e.g. the user clicks the unsubscribe link in an email).
+     * Use this to keep your own model in sync so the user isn't re-subscribed next time they save.
+     */
+    public function onUnsubscribed(): void
+    {
+        $this->updateQuietly(['subscribed_to_newsletter' => false]);
+    }
 }
 ```
 
@@ -529,6 +534,9 @@ public function shouldBeSubscribed(): bool
 - When `shouldBeSubscribed()` returns `false` → the subscriber record is soft-deleted.
 - When the user is hard-deleted → the subscriber record is force-deleted.
 - If a previously unsubscribed user re-subscribes → the soft-deleted record is restored (no duplicate).
+- When a subscriber is removed externally (unsubscribe link in email) → `onUnsubscribed()` is called on your model so your own data stays in sync.
+
+> **Important:** Use `updateQuietly()` inside `onUnsubscribed()` to avoid triggering the `saved` event and causing a sync loop.
 
 **Manual sync trigger:**
 

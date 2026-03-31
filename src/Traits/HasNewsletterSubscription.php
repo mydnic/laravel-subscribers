@@ -3,22 +3,26 @@
 namespace Mydnic\Kanpen\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Event;
+use Mydnic\Kanpen\Events\SubscriberDeleted;
 use Mydnic\Kanpen\Models\Subscriber;
 
 /**
  * Add this trait to your User model (or any Eloquent model with an email column)
  * to automatically sync it with the subscribers table.
  *
- * You must implement shouldBeSubscribed() on your model to define the subscription condition:
+ * You must implement two methods:
  *
- *   public function shouldBeSubscribed(): bool
- *   {
- *       return $this->subscribed_to_newsletter && $this->email_verified_at !== null;
- *   }
+ *   shouldBeSubscribed(): defines when the model should be synced as a subscriber.
+ *   onUnsubscribed(): called when the subscriber is removed from outside your app
+ *                     (e.g. the user clicks the unsubscribe link in an email).
+ *                     Use this to keep your own model in sync.
  */
 trait HasNewsletterSubscription
 {
     abstract public function shouldBeSubscribed(): bool;
+
+    abstract public function onUnsubscribed(): void;
 
     public static function bootHasNewsletterSubscription(): void
     {
@@ -32,6 +36,11 @@ trait HasNewsletterSubscription
             } else {
                 Subscriber::where('email', $model->getSubscriberEmail())->delete();
             }
+        });
+
+        Event::listen(SubscriberDeleted::class, function (SubscriberDeleted $event) {
+            static::where('email', $event->subscriber->email)
+                ->each(fn ($model) => $model->onUnsubscribed());
         });
     }
 
