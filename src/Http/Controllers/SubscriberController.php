@@ -2,12 +2,12 @@
 
 namespace Mydnic\Kanpen\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Mydnic\Kanpen\Events\SubscriberVerified;
 use Mydnic\Kanpen\Exceptions\SubscriberVerificationException;
 use Mydnic\Kanpen\Http\Requests\StoreSubscriberRequest;
-use Mydnic\Kanpen\Http\Requests\VerifySubscriberRequest;
 use Mydnic\Kanpen\Models\Subscriber;
 
 class SubscriberController extends Controller
@@ -38,7 +38,7 @@ class SubscriberController extends Controller
         return view('kanpen::subscriber.deleted');
     }
 
-    public function verify(VerifySubscriberRequest $request)
+    public function verify(Request $request)
     {
         $subscriber = Subscriber::find($request->id);
 
