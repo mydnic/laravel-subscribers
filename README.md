@@ -546,30 +546,7 @@ To sync your existing users in bulk (e.g. after adding the trait to an app that 
 php artisan kanpen:sync "App\Models\User"
 ```
 
-This subscribes every user in the table. To only sync users that have opted in:
-
-```bash
-php artisan kanpen:sync "App\Models\User" \
-    --filter=subscribed_to_newsletter \
-    --filter-value=1
-```
-
-To also **remove** subscribers whose users no longer match the filter:
-
-```bash
-php artisan kanpen:sync "App\Models\User" \
-    --filter=subscribed_to_newsletter \
-    --filter-value=1 \
-    --unsubscribe-removed
-```
-
-| Option | Description |
-|--------|-------------|
-| `model` | Fully-qualified model class (required) |
-| `--email-column` | Column holding the email address (default: `email`) |
-| `--filter` | Column to filter by (e.g. `subscribed_to_newsletter`) |
-| `--filter-value` | Value to match (default: `1`) |
-| `--unsubscribe-removed` | Delete subscribers whose record no longer matches the filter |
+This calls `syncSubscriberRecord()` on every record, which in turn calls your `shouldBeSubscribed()` implementation. Records that return `true` are subscribed (or restored if previously unsubscribed), records that return `false` are soft-deleted from the subscribers table.
 
 ---
 

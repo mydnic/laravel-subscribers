@@ -9,7 +9,6 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 use Mydnic\Kanpen\Enums\CampaignStatus;
-use Mydnic\Kanpen\Events\CampaignDeliverying;
 use Mydnic\Kanpen\Events\CampaignSent;
 use Mydnic\Kanpen\Models\Campaign;
 use Mydnic\Kanpen\Models\CampaignDelivery;
@@ -26,8 +25,6 @@ class SendCampaignJob implements ShouldQueue
     public function handle(): void
     {
         $this->campaign->update(['status' => CampaignStatus::Sending]);
-
-        CampaignDeliverying::dispatch($this->campaign);
 
         $query = Subscriber::query();
 
