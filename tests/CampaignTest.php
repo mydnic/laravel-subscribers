@@ -24,7 +24,7 @@ class CampaignTest extends TestCase
         ]);
 
         $response->assertStatus(201);
-        $this->assertDatabaseHas('campaigns', ['name' => 'My Newsletter', 'status' => 'draft']);
+        $this->assertDatabaseHas(config('kanpen.tables.campaigns'), ['name' => 'My Newsletter', 'status' => 'draft']);
     }
 
     #[Test]

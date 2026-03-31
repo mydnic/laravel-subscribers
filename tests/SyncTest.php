@@ -17,6 +17,16 @@ class FakeUser extends Model
     protected $fillable = ['email', 'subscribed_to_newsletter'];
 
     public $timestamps = false;
+
+    public function shouldBeSubscribed(): bool
+    {
+        return (bool) $this->subscribed_to_newsletter;
+    }
+
+    public function onUnsubscribed(): void
+    {
+        $this->updateQuietly(['subscribed_to_newsletter' => false]);
+    }
 }
 
 class SyncTest extends TestCase
@@ -40,7 +50,7 @@ class SyncTest extends TestCase
             'subscribed_to_newsletter' => true,
         ]);
 
-        $this->assertDatabaseHas('subscribers', ['email' => 'user@example.com']);
+        $this->assertDatabaseHas(config('kanpen.tables.subscribers'), ['email' => 'user@example.com']);
     }
 
     #[Test]
@@ -51,7 +61,7 @@ class SyncTest extends TestCase
             'subscribed_to_newsletter' => false,
         ]);
 
-        $this->assertDatabaseMissing('subscribers', ['email' => 'user@example.com']);
+        $this->assertDatabaseMissing(config('kanpen.tables.subscribers'), ['email' => 'user@example.com']);
     }
 
     #[Test]
@@ -62,11 +72,25 @@ class SyncTest extends TestCase
             'subscribed_to_newsletter' => true,
         ]);
 
-        $this->assertDatabaseHas('subscribers', ['email' => 'user@example.com']);
+        $this->assertDatabaseHas(config('kanpen.tables.subscribers'), ['email' => 'user@example.com']);
 
         $user->update(['subscribed_to_newsletter' => false]);
 
         $this->assertEquals(0, Subscriber::count());
+    }
+
+    #[Test]
+    public function it_calls_on_unsubscribed_when_subscriber_is_externally_removed(): void
+    {
+        $user = FakeUser::create([
+            'email' => 'user@example.com',
+            'subscribed_to_newsletter' => true,
+        ]);
+
+        Subscriber::where('email', 'user@example.com')->first()->delete();
+
+        $user->refresh();
+        $this->assertFalse((bool) $user->subscribed_to_newsletter);
     }
 
     #[Test]

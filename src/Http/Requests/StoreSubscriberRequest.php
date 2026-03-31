@@ -16,7 +16,7 @@ class StoreSubscriberRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email|unique:subscribers,email',
+            'email' => ['required', 'email', 'unique:' . config('kanpen.tables.subscribers') . ',email'],
         ];
     }
 }
