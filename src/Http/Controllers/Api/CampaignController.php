@@ -15,7 +15,7 @@ class CampaignController extends Controller
 {
     public function index(): JsonResponse
     {
-        $campaigns = Campaign::withCount('sends')
+        $campaigns = Campaign::withCount('deliveries')
             ->latest()
             ->paginate(15);
 
@@ -31,12 +31,11 @@ class CampaignController extends Controller
 
     public function show(Campaign $campaign): JsonResponse
     {
-        $campaign->loadCount(['sends'])
-            ->load('sends');
+        $campaign->load('deliveries');
 
-        $openCount = $campaign->sends->whereNotNull('opened_at')->count();
-        $clickCount = $campaign->sends->whereNotNull('clicked_at')->count();
-        $sendCount = $campaign->sends->whereNotNull('sent_at')->count();
+        $openCount = $campaign->deliveries->whereNotNull('opened_at')->count();
+        $clickCount = $campaign->deliveries->whereNotNull('clicked_at')->count();
+        $sendCount = $campaign->deliveries->count();
 
         return response()->json([
             'campaign' => $campaign,

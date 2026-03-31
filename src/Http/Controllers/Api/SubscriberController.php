@@ -10,7 +10,13 @@ class SubscriberController extends Controller
 {
     public function __invoke(StoreSubscriberRequest $request)
     {
-        Subscriber::create($request->all());
+        $subscriber = Subscriber::create($request->validated());
+
+        if (config('kanpen.verify')) {
+            $subscriber->sendEmailVerificationNotification();
+
+            return response()->json(['created' => true, 'verification_required' => true], 201);
+        }
 
         return response()->json(['created' => true], 201);
     }
