@@ -1,11 +1,11 @@
 <?php
 
-namespace Mydnic\Subscribers\Test;
+namespace Mydnic\Kanpen\Test;
 
 use Illuminate\Support\Facades\Bus;
-use Mydnic\Subscribers\Enums\CampaignStatus;
-use Mydnic\Subscribers\Jobs\SendCampaignJob;
-use Mydnic\Subscribers\Models\Campaign;
+use Mydnic\Kanpen\Enums\CampaignStatus;
+use Mydnic\Kanpen\Jobs\SendCampaignJob;
+use Mydnic\Kanpen\Models\Campaign;
 use PHPUnit\Framework\Attributes\Test;
 
 class ScheduledDispatchTest extends TestCase
@@ -22,7 +22,7 @@ class ScheduledDispatchTest extends TestCase
             'scheduled_at' => now()->subMinute(),
         ]);
 
-        $this->artisan('subscribers:dispatch-scheduled')->assertSuccessful();
+        $this->artisan('kanpen:dispatch-scheduled')->assertSuccessful();
 
         Bus::assertDispatched(SendCampaignJob::class);
     }
@@ -39,7 +39,7 @@ class ScheduledDispatchTest extends TestCase
             'scheduled_at' => now()->addHour(),
         ]);
 
-        $this->artisan('subscribers:dispatch-scheduled')->assertSuccessful();
+        $this->artisan('kanpen:dispatch-scheduled')->assertSuccessful();
 
         Bus::assertNothingDispatched();
     }
@@ -56,7 +56,7 @@ class ScheduledDispatchTest extends TestCase
             'scheduled_at' => now()->subMinute(),
         ]);
 
-        $this->artisan('subscribers:dispatch-scheduled')->assertSuccessful();
+        $this->artisan('kanpen:dispatch-scheduled')->assertSuccessful();
 
         Bus::assertNothingDispatched();
     }
@@ -72,7 +72,7 @@ class ScheduledDispatchTest extends TestCase
             'status' => CampaignStatus::Draft->value,
         ]);
 
-        $this->artisan('subscribers:dispatch-scheduled')->assertSuccessful();
+        $this->artisan('kanpen:dispatch-scheduled')->assertSuccessful();
 
         Bus::assertNothingDispatched();
     }
@@ -96,7 +96,7 @@ class ScheduledDispatchTest extends TestCase
             'scheduled_at' => now()->addHour(),
         ]);
 
-        $this->artisan('subscribers:dispatch-scheduled')->assertSuccessful();
+        $this->artisan('kanpen:dispatch-scheduled')->assertSuccessful();
 
         Bus::assertDispatchedTimes(SendCampaignJob::class, 1);
         Bus::assertDispatched(SendCampaignJob::class, fn ($job) => $job->campaign->id === $due->id);

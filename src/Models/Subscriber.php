@@ -1,15 +1,15 @@
 <?php
 
-namespace Mydnic\Subscribers\Models;
+namespace Mydnic\Kanpen\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
-use Mydnic\Subscribers\Events\SubscriberCreated;
-use Mydnic\Subscribers\Events\SubscriberDeleted;
-use Mydnic\Subscribers\Notifications\SubscriberVerifyEmail;
+use Mydnic\Kanpen\Events\SubscriberCreated;
+use Mydnic\Kanpen\Events\SubscriberDeleted;
+use Mydnic\Kanpen\Notifications\SubscriberVerifyEmail;
 
 class Subscriber extends Model
 {
@@ -36,7 +36,7 @@ class Subscriber extends Model
 
     public function sends(): HasMany
     {
-        return $this->hasMany(CampaignSend::class);
+        return $this->hasMany(CampaignDelivery::class);
     }
 
     public function hasVerifiedEmail(): bool
@@ -71,6 +71,6 @@ class Subscriber extends Model
             $this->updateQuietly(['unsubscribe_token' => Str::random(64)]);
         }
 
-        return route('subscribers.unsubscribe', ['token' => $this->unsubscribe_token]);
+        return route('kanpen.unsubscribe', ['token' => $this->unsubscribe_token]);
     }
 }

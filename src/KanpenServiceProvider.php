@@ -1,19 +1,19 @@
 <?php
 
-namespace Mydnic\Subscribers;
+namespace Mydnic\Kanpen;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
-use Mydnic\Subscribers\Commands\DispatchScheduledCampaignsCommand;
-use Mydnic\Subscribers\Commands\SyncSubscribersCommand;
+use Mydnic\Kanpen\Commands\DispatchScheduledCampaignsCommand;
+use Mydnic\Kanpen\Commands\SyncSubscribersCommand;
 
-class SubscribersServiceProvider extends ServiceProvider
+class KanpenServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
         $this->registerPublishing();
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'laravel-subscribers');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'kanpen');
         $this->registerRoutes();
         $this->registerSchedule();
 
@@ -27,7 +27,7 @@ class SubscribersServiceProvider extends ServiceProvider
 
     protected function registerSchedule(): void
     {
-        if (! config('laravel-subscribers.campaigns.schedule', true)) {
+        if (! config('kanpen.campaigns.schedule', true)) {
             return;
         }
 
@@ -40,20 +40,19 @@ class SubscribersServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../resources/js/components' => resource_path('js/components/Subscribers'),
-            ], 'subscribers-vue-component');
+                __DIR__.'/../database/migrations/2018_01_01_000000_create_subscribers_table.php' => database_path('migrations/2018_01_01_000000_kanpen_create_subscribers_table.php'),
+                __DIR__.'/../database/migrations/2024_01_01_000001_create_campaigns_table.php' => database_path('migrations/2024_01_01_000001_kanpen_create_campaigns_table.php'),
+                __DIR__.'/../database/migrations/2024_01_01_000002_create_campaign_deliveries_table.php' => database_path('migrations/2024_01_01_000002_kanpen_create_campaign_deliveries_table.php'),
+                __DIR__.'/../database/migrations/2024_01_01_000003_add_unsubscribe_token_to_subscribers_table.php' => database_path('migrations/2024_01_01_000003_kanpen_add_unsubscribe_token_to_subscribers_table.php'),
+            ], 'kanpen-migrations');
 
             $this->publishes([
-                __DIR__.'/../database/migrations' => database_path('migrations'),
-            ], 'subscribers-migrations');
+                __DIR__.'/../config/kanpen.php' => config_path('kanpen.php'),
+            ], 'kanpen-config');
 
             $this->publishes([
-                __DIR__.'/../config/laravel-subscribers.php' => config_path('laravel-subscribers.php'),
-            ], 'subscribers-config');
-
-            $this->publishes([
-                __DIR__.'/../resources/views' => resource_path('views/vendor/laravel-subscribers'),
-            ], 'subscribers-views');
+                __DIR__.'/../resources/views' => resource_path('views/vendor/kanpen'),
+            ], 'kanpen-views');
         }
     }
 
@@ -67,7 +66,7 @@ class SubscribersServiceProvider extends ServiceProvider
             $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
         });
 
-        if (config('laravel-subscribers.campaigns.enabled', true)) {
+        if (config('kanpen.campaigns.enabled', true)) {
             Route::group($this->campaignRouteConfiguration(), function () {
                 $this->loadRoutesFrom(__DIR__.'/../routes/campaigns.php');
             });
@@ -77,8 +76,8 @@ class SubscribersServiceProvider extends ServiceProvider
     protected function webRouteConfiguration(): array
     {
         return [
-            'as' => 'subscribers.',
-            'prefix' => 'subscribers',
+            'as' => 'kanpen.',
+            'prefix' => 'kanpen',
             'middleware' => 'web',
         ];
     }
@@ -86,8 +85,8 @@ class SubscribersServiceProvider extends ServiceProvider
     protected function apiRouteConfiguration(): array
     {
         return [
-            'as' => 'subscribers.api.',
-            'prefix' => 'subscribers-api',
+            'as' => 'kanpen.api.',
+            'prefix' => 'kanpen-api',
             'middleware' => 'api',
         ];
     }
@@ -95,16 +94,16 @@ class SubscribersServiceProvider extends ServiceProvider
     protected function campaignRouteConfiguration(): array
     {
         return [
-            'as' => 'subscribers.api.',
-            'prefix' => 'subscribers-api',
-            'middleware' => config('laravel-subscribers.campaigns.middleware', ['api']),
+            'as' => 'kanpen.api.',
+            'prefix' => 'kanpen-api',
+            'middleware' => config('kanpen.campaigns.middleware', ['api']),
         ];
     }
 
     public function register(): void
     {
         if (! $this->app->configurationIsCached()) {
-            $this->mergeConfigFrom(__DIR__.'/../config/laravel-subscribers.php', 'laravel-subscribers');
+            $this->mergeConfigFrom(__DIR__.'/../config/kanpen.php', 'kanpen');
         }
     }
 }

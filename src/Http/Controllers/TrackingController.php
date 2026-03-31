@@ -1,14 +1,14 @@
 <?php
 
-namespace Mydnic\Subscribers\Http\Controllers;
+namespace Mydnic\Kanpen\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use Mydnic\Subscribers\Events\EmailLinkClicked;
-use Mydnic\Subscribers\Events\EmailOpened;
-use Mydnic\Subscribers\Models\CampaignSend;
+use Mydnic\Kanpen\Events\EmailLinkClicked;
+use Mydnic\Kanpen\Events\EmailOpened;
+use Mydnic\Kanpen\Models\CampaignDelivery;
 
 class TrackingController extends Controller
 {
@@ -17,7 +17,7 @@ class TrackingController extends Controller
 
     public function open(string $token): Response
     {
-        $send = CampaignSend::where('token', $token)->first();
+        $send = CampaignDelivery::where('token', $token)->first();
 
         if ($send) {
             $send->increment('open_count');
@@ -38,7 +38,7 @@ class TrackingController extends Controller
 
     public function click(Request $request, string $token): RedirectResponse
     {
-        $send = CampaignSend::where('token', $token)->first();
+        $send = CampaignDelivery::where('token', $token)->first();
 
         $encodedUrl = $request->query('url', '');
         $url = base64_decode($encodedUrl, strict: true);
@@ -52,7 +52,7 @@ class TrackingController extends Controller
             abort(400, 'Invalid tracking URL.');
         }
 
-        $allowedDomains = config('laravel-subscribers.tracking.allowed_domains', []);
+        $allowedDomains = config('kanpen.tracking.allowed_domains', []);
         if (! empty($allowedDomains)) {
             $host = parse_url($url, PHP_URL_HOST);
             if (! in_array($host, $allowedDomains, strict: true)) {

@@ -1,4 +1,4 @@
-@extends('laravel-subscribers::mail.layouts.base')
+@extends('kanpen::mail.layouts.base')
 
 @section('content')
     {!! $contentHtml !!}

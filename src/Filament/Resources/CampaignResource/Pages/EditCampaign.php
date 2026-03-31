@@ -1,12 +1,12 @@
 <?php
 
-namespace Mydnic\Subscribers\Filament\Resources\CampaignResource\Pages;
+namespace Mydnic\Kanpen\Filament\Resources\CampaignResource\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
-use Mydnic\Subscribers\Filament\Resources\CampaignResource;
-use Mydnic\Subscribers\Models\Campaign;
+use Mydnic\Kanpen\Filament\Resources\CampaignResource;
+use Mydnic\Kanpen\Models\Campaign;
 
 class EditCampaign extends EditRecord
 {

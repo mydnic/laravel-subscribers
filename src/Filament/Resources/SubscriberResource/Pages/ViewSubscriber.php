@@ -1,6 +1,6 @@
 <?php
 
-namespace Mydnic\Subscribers\Filament\Resources\SubscriberResource\Pages;
+namespace Mydnic\Kanpen\Filament\Resources\SubscriberResource\Pages;
 
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -8,7 +8,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
-use Mydnic\Subscribers\Filament\Resources\SubscriberResource;
+use Mydnic\Kanpen\Filament\Resources\SubscriberResource;
 
 class ViewSubscriber extends ViewRecord
 {

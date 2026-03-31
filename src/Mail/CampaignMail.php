@@ -1,6 +1,6 @@
 <?php
 
-namespace Mydnic\Subscribers\Mail;
+namespace Mydnic\Kanpen\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -8,9 +8,9 @@ use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Mydnic\Subscribers\Models\Campaign;
-use Mydnic\Subscribers\Models\CampaignSend;
-use Mydnic\Subscribers\Services\TrackingUrlService;
+use Mydnic\Kanpen\Models\Campaign;
+use Mydnic\Kanpen\Models\CampaignDelivery;
+use Mydnic\Kanpen\Services\TrackingUrlService;
 
 class CampaignMail extends Mailable
 {
@@ -18,17 +18,17 @@ class CampaignMail extends Mailable
 
     public function __construct(
         public readonly Campaign $campaign,
-        public readonly CampaignSend $send,
+        public readonly CampaignDelivery $send,
     ) {}
 
     public function envelope(): Envelope
     {
         $fromEmail = $this->campaign->from_email
-            ?? config('laravel-subscribers.campaigns.from.email')
+            ?? config('kanpen.campaigns.from.email')
             ?? config('mail.from.address');
 
         $fromName = $this->campaign->from_name
-            ?? config('laravel-subscribers.campaigns.from.name')
+            ?? config('kanpen.campaigns.from.name')
             ?? config('mail.from.name');
 
         $envelope = new Envelope(
@@ -61,7 +61,7 @@ class CampaignMail extends Mailable
         }
 
         return new Content(
-            view: 'laravel-subscribers::mail.campaign',
+            view: 'kanpen::mail.campaign',
             with: [
                 'campaign' => $this->campaign,
                 'send' => $this->send,
@@ -83,7 +83,7 @@ class CampaignMail extends Mailable
     {
         $html = parent::render();
 
-        if (config('laravel-subscribers.tracking.enabled', true)) {
+        if (config('kanpen.tracking.enabled', true)) {
             $trackingService = app(TrackingUrlService::class);
             $html = $trackingService->processHtml($html, $this->send);
         }

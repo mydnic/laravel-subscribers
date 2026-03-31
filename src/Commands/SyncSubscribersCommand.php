@@ -1,14 +1,14 @@
 <?php
 
-namespace Mydnic\Subscribers\Commands;
+namespace Mydnic\Kanpen\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Builder;
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Models\Subscriber;
 
 class SyncSubscribersCommand extends Command
 {
-    protected $signature = 'subscribers:sync
+    protected $signature = 'kanpen:sync
                             {model : Fully qualified model class (e.g. App\\Models\\User)}
                             {--email-column=email : Column on the model that holds the email address}
                             {--filter= : Column on the model to filter by (e.g. subscribed_to_newsletter)}

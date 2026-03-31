@@ -7,7 +7,7 @@ return [
      |--------------------------------------------------------------------------
      | When enabled, subscribers must verify their email before being considered active.
      */
-    'verify' => env('LARAVEL_SUBSCRIBERS_VERIFY', false),
+    'verify' => env('KANPEN_VERIFY', false),
 
     /*
      |--------------------------------------------------------------------------
@@ -56,9 +56,9 @@ return [
         ],
 
         // Queue name for campaign send jobs
-        'queue' => env('SUBSCRIBERS_QUEUE', 'default'),
+        'queue' => env('KANPEN_QUEUE', 'default'),
 
-        // Automatically register the `subscribers:dispatch-scheduled` command on the scheduler
+        // Automatically register the `kanpen:dispatch-scheduled` command on the scheduler
         // running every minute. Set to false if you prefer to schedule it yourself.
         'schedule' => true,
     ],

@@ -1,9 +1,9 @@
 <?php
 
-namespace Mydnic\Subscribers\Traits;
+namespace Mydnic\Kanpen\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Models\Subscriber;
 
 /**
  * Add this trait to your User model (or any Eloquent model with an email column)

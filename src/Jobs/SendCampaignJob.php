@@ -1,6 +1,6 @@
 <?php
 
-namespace Mydnic\Subscribers\Jobs;
+namespace Mydnic\Kanpen\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -8,12 +8,12 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
-use Mydnic\Subscribers\Enums\CampaignStatus;
-use Mydnic\Subscribers\Events\CampaignSending;
-use Mydnic\Subscribers\Events\CampaignSent;
-use Mydnic\Subscribers\Models\Campaign;
-use Mydnic\Subscribers\Models\CampaignSend;
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Enums\CampaignStatus;
+use Mydnic\Kanpen\Events\CampaignDeliverying;
+use Mydnic\Kanpen\Events\CampaignSent;
+use Mydnic\Kanpen\Models\Campaign;
+use Mydnic\Kanpen\Models\CampaignDelivery;
+use Mydnic\Kanpen\Models\Subscriber;
 
 class SendCampaignJob implements ShouldQueue
 {
@@ -27,21 +27,21 @@ class SendCampaignJob implements ShouldQueue
     {
         $this->campaign->update(['status' => CampaignStatus::Sending]);
 
-        CampaignSending::dispatch($this->campaign);
+        CampaignDeliverying::dispatch($this->campaign);
 
         $query = Subscriber::query();
 
-        if (config('laravel-subscribers.verify')) {
+        if (config('kanpen.verify')) {
             $query->whereNotNull('email_verified_at');
         }
 
         $sentCount = 0;
 
-        $queue = config('laravel-subscribers.campaigns.queue', 'default');
+        $queue = config('kanpen.campaigns.queue', 'default');
 
         $query->chunk(100, function ($subscribers) use (&$sentCount, $queue) {
             foreach ($subscribers as $subscriber) {
-                $send = CampaignSend::create([
+                $send = CampaignDelivery::create([
                     'campaign_id' => $this->campaign->id,
                     'subscriber_id' => $subscriber->id,
                     'token' => Str::random(64),

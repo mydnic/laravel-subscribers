@@ -1,11 +1,11 @@
 <?php
 
-namespace Mydnic\Subscribers\Test;
+namespace Mydnic\Kanpen\Test;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
-use Mydnic\Subscribers\Models\Subscriber;
-use Mydnic\Subscribers\Traits\HasNewsletterSubscription;
+use Mydnic\Kanpen\Models\Subscriber;
+use Mydnic\Kanpen\Traits\HasNewsletterSubscription;
 use PHPUnit\Framework\Attributes\Test;
 
 class FakeUser extends Model

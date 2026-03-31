@@ -1,15 +1,15 @@
 <?php
 
-namespace Mydnic\Subscribers\Filament;
+namespace Mydnic\Kanpen\Filament;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Mydnic\Subscribers\Filament\Resources\CampaignResource;
-use Mydnic\Subscribers\Filament\Resources\SubscriberResource;
-use Mydnic\Subscribers\Filament\Widgets\NewSubscribersChart;
-use Mydnic\Subscribers\Filament\Widgets\SubscribersOverview;
+use Mydnic\Kanpen\Filament\Resources\CampaignResource;
+use Mydnic\Kanpen\Filament\Resources\SubscriberResource;
+use Mydnic\Kanpen\Filament\Widgets\NewSubscribersChart;
+use Mydnic\Kanpen\Filament\Widgets\SubscribersOverview;
 
-class SubscribersPlugin implements Plugin
+class KanpenPlugin implements Plugin
 {
     protected bool $subscriberResource = true;
 
@@ -26,7 +26,7 @@ class SubscribersPlugin implements Plugin
 
     public function getId(): string
     {
-        return 'laravel-subscribers';
+        return 'kanpen';
     }
 
     public function register(Panel $panel): void

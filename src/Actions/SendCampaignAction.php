@@ -1,10 +1,10 @@
 <?php
 
-namespace Mydnic\Subscribers\Actions;
+namespace Mydnic\Kanpen\Actions;
 
 use InvalidArgumentException;
-use Mydnic\Subscribers\Jobs\SendCampaignJob;
-use Mydnic\Subscribers\Models\Campaign;
+use Mydnic\Kanpen\Jobs\SendCampaignJob;
+use Mydnic\Kanpen\Models\Campaign;
 
 class SendCampaignAction
 {
@@ -16,7 +16,7 @@ class SendCampaignAction
             );
         }
 
-        $queue = config('laravel-subscribers.campaigns.queue', 'default');
+        $queue = config('kanpen.campaigns.queue', 'default');
 
         SendCampaignJob::dispatch($campaign)->onQueue($queue);
     }

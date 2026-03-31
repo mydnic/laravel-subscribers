@@ -1,10 +1,10 @@
 <?php
 
-namespace Mydnic\Subscribers\Filament\Widgets;
+namespace Mydnic\Kanpen\Filament\Widgets;
 
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Models\Subscriber;
 
 class NewSubscribersChart extends ChartWidget
 {

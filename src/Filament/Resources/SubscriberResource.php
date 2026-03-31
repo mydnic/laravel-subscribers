@@ -1,6 +1,6 @@
 <?php
 
-namespace Mydnic\Subscribers\Filament\Resources;
+namespace Mydnic\Kanpen\Filament\Resources;
 
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
@@ -23,9 +23,9 @@ use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Mydnic\Subscribers\Filament\Resources\SubscriberResource\Pages\ListSubscribers;
-use Mydnic\Subscribers\Filament\Resources\SubscriberResource\Pages\ViewSubscriber;
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Filament\Resources\SubscriberResource\Pages\ListSubscribers;
+use Mydnic\Kanpen\Filament\Resources\SubscriberResource\Pages\ViewSubscriber;
+use Mydnic\Kanpen\Models\Subscriber;
 
 class SubscriberResource extends Resource
 {

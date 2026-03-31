@@ -1,14 +1,14 @@
 <?php
 
-namespace Mydnic\Subscribers\Filament\Resources\CampaignResource\Pages;
+namespace Mydnic\Kanpen\Filament\Resources\CampaignResource\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Pages\ListRecords\Tab;
 use Illuminate\Database\Eloquent\Builder;
-use Mydnic\Subscribers\Enums\CampaignStatus;
-use Mydnic\Subscribers\Filament\Resources\CampaignResource;
-use Mydnic\Subscribers\Models\Campaign;
+use Mydnic\Kanpen\Enums\CampaignStatus;
+use Mydnic\Kanpen\Filament\Resources\CampaignResource;
+use Mydnic\Kanpen\Models\Campaign;
 
 class ListCampaigns extends ListRecords
 {

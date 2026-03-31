@@ -1,9 +1,9 @@
 <?php
 
-namespace Mydnic\Subscribers\Filament\Resources\CampaignResource\Pages;
+namespace Mydnic\Kanpen\Filament\Resources\CampaignResource\Pages;
 
 use Filament\Resources\Pages\CreateRecord;
-use Mydnic\Subscribers\Filament\Resources\CampaignResource;
+use Mydnic\Kanpen\Filament\Resources\CampaignResource;
 
 class CreateCampaign extends CreateRecord
 {

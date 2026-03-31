@@ -1,6 +1,6 @@
 <?php
 
-namespace Mydnic\Subscribers\Notifications;
+namespace Mydnic\Kanpen\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -46,21 +46,21 @@ class SubscriberVerifyEmail extends Notification
 
         $mail = new MailMessage;
 
-        $mail->subject(Lang::get(config('laravel-subscribers.mail.verify.subject', 'Verify Email Address')));
-        $mail->greeting(Lang::get(config('laravel-subscribers.mail.verify.greeting', 'Hello!')));
+        $mail->subject(Lang::get(config('kanpen.mail.verify.subject', 'Verify Email Address')));
+        $mail->greeting(Lang::get(config('kanpen.mail.verify.greeting', 'Hello!')));
 
-        if (! empty(config('laravel-subscribers.mail.verify.content'))) {
-            foreach (config('laravel-subscribers.mail.verify.content') as $value) {
+        if (! empty(config('kanpen.mail.verify.content'))) {
+            foreach (config('kanpen.mail.verify.content') as $value) {
                 $mail->line(Lang::get($value));
             }
         } else {
             $mail->line(Lang::get('Please click the button below to verify your email address.'));
         }
 
-        $mail->action(Lang::get(config('laravel-subscribers.mail.verify.action', 'Verify Email Address')), $verificationUrl);
+        $mail->action(Lang::get(config('kanpen.mail.verify.action', 'Verify Email Address')), $verificationUrl);
 
-        if (! empty(config('laravel-subscribers.mail.verify.footer'))) {
-            foreach (config('laravel-subscribers.mail.verify.footer') as $value) {
+        if (! empty(config('kanpen.mail.verify.footer'))) {
+            foreach (config('kanpen.mail.verify.footer') as $value) {
                 $mail->line(Lang::get($value));
             }
         } else {
@@ -92,8 +92,8 @@ class SubscriberVerifyEmail extends Notification
     protected function verificationUrl($notifiable)
     {
         return URL::temporarySignedRoute(
-            'subscribers.verify',
-            Carbon::now()->addMinutes(config('laravel-subscribers.mail.verify.expiration')),
+            'kanpen.verify',
+            Carbon::now()->addMinutes(config('kanpen.mail.verify.expiration')),
             [
                 'id' => $notifiable->getKey(),
                 'hash' => sha1($notifiable->getEmailForVerification()),

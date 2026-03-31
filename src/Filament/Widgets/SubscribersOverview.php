@@ -1,12 +1,12 @@
 <?php
 
-namespace Mydnic\Subscribers\Filament\Widgets;
+namespace Mydnic\Kanpen\Filament\Widgets;
 
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Mydnic\Subscribers\Enums\CampaignStatus;
-use Mydnic\Subscribers\Models\Campaign;
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Enums\CampaignStatus;
+use Mydnic\Kanpen\Models\Campaign;
+use Mydnic\Kanpen\Models\Subscriber;
 
 class SubscribersOverview extends BaseWidget
 {

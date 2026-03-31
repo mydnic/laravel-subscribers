@@ -1,11 +1,11 @@
 <?php
 
-namespace Mydnic\Subscribers\Test;
+namespace Mydnic\Kanpen\Test;
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
-use Mydnic\Subscribers\SubscribersServiceProvider;
+use Mydnic\Kanpen\KanpenServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
@@ -20,7 +20,7 @@ abstract class TestCase extends Orchestra
 
     protected function getPackageProviders($app): array
     {
-        return [SubscribersServiceProvider::class];
+        return [KanpenServiceProvider::class];
     }
 
     protected function getEnvironmentSetUp($app): void
@@ -43,7 +43,7 @@ abstract class TestCase extends Orchestra
 
     protected function setUpDatabase(): void
     {
-        Schema::dropIfExists('campaign_sends');
+        Schema::dropIfExists('campaign_deliveries');
         Schema::dropIfExists('campaigns');
         Schema::dropIfExists('subscribers');
 
@@ -73,7 +73,7 @@ abstract class TestCase extends Orchestra
             $table->softDeletes();
         });
 
-        Schema::create('campaign_sends', function (Blueprint $table) {
+        Schema::create('campaign_deliveries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('campaign_id')->constrained()->cascadeOnDelete();
             $table->foreignId('subscriber_id')->constrained()->cascadeOnDelete();

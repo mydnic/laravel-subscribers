@@ -1,12 +1,12 @@
 <?php
 
-namespace Mydnic\Subscribers\Filament\Resources\SubscriberResource\Pages;
+namespace Mydnic\Kanpen\Filament\Resources\SubscriberResource\Pages;
 
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Pages\ListRecords\Tab;
 use Illuminate\Database\Eloquent\Builder;
-use Mydnic\Subscribers\Filament\Resources\SubscriberResource;
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Filament\Resources\SubscriberResource;
+use Mydnic\Kanpen\Models\Subscriber;
 
 class ListSubscribers extends ListRecords
 {

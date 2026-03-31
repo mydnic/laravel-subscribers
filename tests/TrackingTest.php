@@ -1,19 +1,19 @@
 <?php
 
-namespace Mydnic\Subscribers\Test;
+namespace Mydnic\Kanpen\Test;
 
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
-use Mydnic\Subscribers\Events\EmailLinkClicked;
-use Mydnic\Subscribers\Events\EmailOpened;
-use Mydnic\Subscribers\Models\Campaign;
-use Mydnic\Subscribers\Models\CampaignSend;
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Events\EmailLinkClicked;
+use Mydnic\Kanpen\Events\EmailOpened;
+use Mydnic\Kanpen\Models\Campaign;
+use Mydnic\Kanpen\Models\CampaignDelivery;
+use Mydnic\Kanpen\Models\Subscriber;
 use PHPUnit\Framework\Attributes\Test;
 
 class TrackingTest extends TestCase
 {
-    private function makeSend(): CampaignSend
+    private function makeSend(): CampaignDelivery
     {
         $subscriber = Subscriber::create(['email' => 'track@example.com']);
 
@@ -23,7 +23,7 @@ class TrackingTest extends TestCase
             'status' => 'sending',
         ]);
 
-        return CampaignSend::create([
+        return CampaignDelivery::create([
             'campaign_id' => $campaign->id,
             'subscriber_id' => $subscriber->id,
             'token' => Str::random(64),
@@ -35,7 +35,7 @@ class TrackingTest extends TestCase
     {
         $send = $this->makeSend();
 
-        $response = $this->get("/subscribers/tracking/open/{$send->token}");
+        $response = $this->get("/kanpen/tracking/open/{$send->token}");
 
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'image/gif');
@@ -48,7 +48,7 @@ class TrackingTest extends TestCase
 
         $send = $this->makeSend();
 
-        $this->get("/subscribers/tracking/open/{$send->token}");
+        $this->get("/kanpen/tracking/open/{$send->token}");
 
         $send->refresh();
         $this->assertEquals(1, $send->open_count);
@@ -62,9 +62,9 @@ class TrackingTest extends TestCase
     {
         $send = $this->makeSend();
 
-        $this->get("/subscribers/tracking/open/{$send->token}");
-        $this->get("/subscribers/tracking/open/{$send->token}");
-        $this->get("/subscribers/tracking/open/{$send->token}");
+        $this->get("/kanpen/tracking/open/{$send->token}");
+        $this->get("/kanpen/tracking/open/{$send->token}");
+        $this->get("/kanpen/tracking/open/{$send->token}");
 
         $send->refresh();
         $this->assertEquals(3, $send->open_count);
@@ -78,7 +78,7 @@ class TrackingTest extends TestCase
         $send = $this->makeSend();
         $url = base64_encode('https://example.com/page');
 
-        $response = $this->get("/subscribers/tracking/click/{$send->token}?url={$url}");
+        $response = $this->get("/kanpen/tracking/click/{$send->token}?url={$url}");
 
         $response->assertRedirect('https://example.com/page');
 
@@ -92,7 +92,7 @@ class TrackingTest extends TestCase
     #[Test]
     public function it_returns_200_for_unknown_token_on_open(): void
     {
-        $response = $this->get('/subscribers/tracking/open/unknown-token-xyz');
+        $response = $this->get('/kanpen/tracking/open/unknown-token-xyz');
 
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'image/gif');
@@ -103,7 +103,7 @@ class TrackingTest extends TestCase
     {
         $send = $this->makeSend();
 
-        $response = $this->get("/subscribers/tracking/click/{$send->token}?url=not-valid-base64!!!");
+        $response = $this->get("/kanpen/tracking/click/{$send->token}?url=not-valid-base64!!!");
 
         $response->assertStatus(400);
     }

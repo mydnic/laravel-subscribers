@@ -1,10 +1,10 @@
 <?php
 
-namespace Mydnic\Subscribers\Http\Controllers\Api;
+namespace Mydnic\Kanpen\Http\Controllers\Api;
 
 use Illuminate\Routing\Controller;
-use Mydnic\Subscribers\Http\Requests\StoreSubscriberRequest;
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Http\Requests\StoreSubscriberRequest;
+use Mydnic\Kanpen\Models\Subscriber;
 
 class SubscriberController extends Controller
 {

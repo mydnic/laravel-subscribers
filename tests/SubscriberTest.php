@@ -1,11 +1,11 @@
 <?php
 
-namespace Mydnic\Subscribers\Test;
+namespace Mydnic\Kanpen\Test;
 
 use Illuminate\Support\Facades\Event;
-use Mydnic\Subscribers\Events\SubscriberCreated;
-use Mydnic\Subscribers\Events\SubscriberDeleted;
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Events\SubscriberCreated;
+use Mydnic\Kanpen\Events\SubscriberDeleted;
+use Mydnic\Kanpen\Models\Subscriber;
 use PHPUnit\Framework\Attributes\Test;
 
 class SubscriberTest extends TestCase
@@ -15,7 +15,7 @@ class SubscriberTest extends TestCase
     {
         Event::fake([SubscriberCreated::class]);
 
-        $response = $this->post('/subscribers-api/subscriber', [
+        $response = $this->post('/kanpen-api/subscriber', [
             'email' => 'some@email.com',
         ]);
 
@@ -32,7 +32,7 @@ class SubscriberTest extends TestCase
     {
         Event::fake([SubscriberCreated::class]);
 
-        $response = $this->post('/subscribers/subscriber', [
+        $response = $this->post('/kanpen/subscriber', [
             'email' => 'someweb@email.com',
         ]);
 
@@ -58,7 +58,7 @@ class SubscriberTest extends TestCase
     {
         Subscriber::create(['email' => 'some@email.com']);
 
-        $this->post('/subscribers-api/subscriber', ['email' => 'some@email.com']);
+        $this->post('/kanpen-api/subscriber', ['email' => 'some@email.com']);
 
         $this->assertEquals(1, Subscriber::count());
     }
@@ -70,7 +70,7 @@ class SubscriberTest extends TestCase
 
         $subscriber = Subscriber::create(['email' => 'some@email.com']);
 
-        $response = $this->get("/subscribers/unsubscribe/{$subscriber->unsubscribe_token}");
+        $response = $this->get("/kanpen/unsubscribe/{$subscriber->unsubscribe_token}");
 
         $response->assertStatus(200);
         $this->assertEquals(0, Subscriber::count());
@@ -82,7 +82,7 @@ class SubscriberTest extends TestCase
     public function it_shows_unsubscribed_page_for_unknown_token(): void
     {
         // Unknown token silently returns 200 — no email enumeration possible
-        $response = $this->get('/subscribers/unsubscribe/totally-fake-token');
+        $response = $this->get('/kanpen/unsubscribe/totally-fake-token');
 
         $response->assertStatus(200);
     }

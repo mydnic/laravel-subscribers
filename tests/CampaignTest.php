@@ -1,15 +1,15 @@
 <?php
 
-namespace Mydnic\Subscribers\Test;
+namespace Mydnic\Kanpen\Test;
 
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Mail;
-use Mydnic\Subscribers\Actions\SendCampaignAction;
-use Mydnic\Subscribers\Enums\CampaignStatus;
-use Mydnic\Subscribers\Jobs\SendCampaignJob;
-use Mydnic\Subscribers\Mail\CampaignMail;
-use Mydnic\Subscribers\Models\Campaign;
-use Mydnic\Subscribers\Models\CampaignSend;
+use Mydnic\Kanpen\Actions\SendCampaignAction;
+use Mydnic\Kanpen\Enums\CampaignStatus;
+use Mydnic\Kanpen\Jobs\SendCampaignJob;
+use Mydnic\Kanpen\Mail\CampaignMail;
+use Mydnic\Kanpen\Models\Campaign;
+use Mydnic\Kanpen\Models\CampaignDelivery;
 use PHPUnit\Framework\Attributes\Test;
 
 class CampaignTest extends TestCase
@@ -17,7 +17,7 @@ class CampaignTest extends TestCase
     #[Test]
     public function it_creates_a_campaign_via_api(): void
     {
-        $response = $this->postJson('/subscribers-api/campaigns', [
+        $response = $this->postJson('/kanpen-api/campaigns', [
             'name' => 'My Newsletter',
             'subject' => 'Hello Subscribers',
             'content_html' => '<p>Welcome!</p>',
@@ -33,7 +33,7 @@ class CampaignTest extends TestCase
         Campaign::create(['name' => 'A', 'subject' => 'Sub A', 'status' => 'draft']);
         Campaign::create(['name' => 'B', 'subject' => 'Sub B', 'status' => 'draft']);
 
-        $response = $this->getJson('/subscribers-api/campaigns');
+        $response = $this->getJson('/kanpen-api/campaigns');
 
         $response->assertStatus(200);
         $response->assertJsonCount(2, 'data');
@@ -75,7 +75,7 @@ class CampaignTest extends TestCase
     {
         $campaign = Campaign::create(['name' => 'Stats', 'subject' => 'Stats', 'status' => 'draft']);
 
-        $response = $this->getJson("/subscribers-api/campaigns/{$campaign->id}");
+        $response = $this->getJson("/kanpen-api/campaigns/{$campaign->id}");
 
         $response->assertStatus(200);
         $response->assertJsonPath('stats.sent', 0);
@@ -85,7 +85,7 @@ class CampaignTest extends TestCase
     #[Test]
     public function it_requires_name_and_subject_to_create_campaign(): void
     {
-        $response = $this->postJson('/subscribers-api/campaigns', []);
+        $response = $this->postJson('/kanpen-api/campaigns', []);
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['name', 'subject']);
@@ -103,7 +103,7 @@ class CampaignTest extends TestCase
             'status' => 'draft',
         ]);
 
-        $response = $this->postJson("/subscribers-api/campaigns/{$campaign->id}/test", [
+        $response = $this->postJson("/kanpen-api/campaigns/{$campaign->id}/test", [
             'email' => 'preview@example.com',
         ]);
 
@@ -116,8 +116,8 @@ class CampaignTest extends TestCase
         $this->assertEquals(0, $campaign->sent_count);
         $this->assertNull($campaign->sent_at);
 
-        // No CampaignSend records created
-        $this->assertEquals(0, CampaignSend::count());
+        // No CampaignDelivery records created
+        $this->assertEquals(0, CampaignDelivery::count());
 
         Mail::assertSent(CampaignMail::class, fn ($mail) => $mail->hasTo('preview@example.com'));
     }
@@ -131,7 +131,7 @@ class CampaignTest extends TestCase
             'status' => 'draft',
         ]);
 
-        $response = $this->postJson("/subscribers-api/campaigns/{$campaign->id}/test", [
+        $response = $this->postJson("/kanpen-api/campaigns/{$campaign->id}/test", [
             'email' => 'not-an-email',
         ]);
 
@@ -152,7 +152,7 @@ class CampaignTest extends TestCase
                 'status' => $status,
             ]);
 
-            $response = $this->postJson("/subscribers-api/campaigns/{$campaign->id}/test", [
+            $response = $this->postJson("/kanpen-api/campaigns/{$campaign->id}/test", [
                 'email' => 'qa@example.com',
             ]);
 

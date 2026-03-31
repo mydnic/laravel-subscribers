@@ -1,13 +1,13 @@
 <?php
 
-namespace Mydnic\Subscribers\Models;
+namespace Mydnic\Kanpen\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class CampaignSend extends Model
+class CampaignDelivery extends Model
 {
-    protected $table = 'campaign_sends';
+    protected $table = 'campaign_deliveries';
 
     protected $fillable = [
         'campaign_id',

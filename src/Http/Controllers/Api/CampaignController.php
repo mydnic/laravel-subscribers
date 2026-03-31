@@ -1,15 +1,15 @@
 <?php
 
-namespace Mydnic\Subscribers\Http\Controllers\Api;
+namespace Mydnic\Kanpen\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
-use Mydnic\Subscribers\Actions\SendCampaignAction;
-use Mydnic\Subscribers\Actions\SendTestCampaignAction;
-use Mydnic\Subscribers\Http\Requests\SendTestCampaignRequest;
-use Mydnic\Subscribers\Http\Requests\StoreCampaignRequest;
-use Mydnic\Subscribers\Http\Requests\UpdateCampaignRequest;
-use Mydnic\Subscribers\Models\Campaign;
+use Mydnic\Kanpen\Actions\SendCampaignAction;
+use Mydnic\Kanpen\Actions\SendTestCampaignAction;
+use Mydnic\Kanpen\Http\Requests\SendTestCampaignRequest;
+use Mydnic\Kanpen\Http\Requests\StoreCampaignRequest;
+use Mydnic\Kanpen\Http\Requests\UpdateCampaignRequest;
+use Mydnic\Kanpen\Models\Campaign;
 
 class CampaignController extends Controller
 {

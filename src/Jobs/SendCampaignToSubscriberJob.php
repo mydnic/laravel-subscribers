@@ -1,6 +1,6 @@
 <?php
 
-namespace Mydnic\Subscribers\Jobs;
+namespace Mydnic\Kanpen\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -8,8 +8,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
-use Mydnic\Subscribers\Mail\CampaignMail;
-use Mydnic\Subscribers\Models\CampaignSend;
+use Mydnic\Kanpen\Mail\CampaignMail;
+use Mydnic\Kanpen\Models\CampaignDelivery;
 
 class SendCampaignToSubscriberJob implements ShouldQueue
 {
@@ -18,7 +18,7 @@ class SendCampaignToSubscriberJob implements ShouldQueue
     public int $tries = 3;
 
     public function __construct(
-        public readonly CampaignSend $send,
+        public readonly CampaignDelivery $send,
     ) {}
 
     public function handle(): void

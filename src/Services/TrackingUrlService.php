@@ -1,27 +1,27 @@
 <?php
 
-namespace Mydnic\Subscribers\Services;
+namespace Mydnic\Kanpen\Services;
 
-use Mydnic\Subscribers\Models\CampaignSend;
+use Mydnic\Kanpen\Models\CampaignDelivery;
 
 class TrackingUrlService
 {
-    public function openPixelUrl(CampaignSend $send): string
+    public function openPixelUrl(CampaignDelivery $send): string
     {
-        return route('subscribers.tracking.open', ['token' => $send->token]);
+        return route('kanpen.tracking.open', ['token' => $send->token]);
     }
 
-    public function clickProxyUrl(CampaignSend $send, string $originalUrl): string
+    public function clickProxyUrl(CampaignDelivery $send, string $originalUrl): string
     {
-        return route('subscribers.tracking.click', [
+        return route('kanpen.tracking.click', [
             'token' => $send->token,
             'url' => base64_encode($originalUrl),
         ]);
     }
 
-    public function rewriteLinks(string $html, CampaignSend $send): string
+    public function rewriteLinks(string $html, CampaignDelivery $send): string
     {
-        if (! config('laravel-subscribers.tracking.click', true)) {
+        if (! config('kanpen.tracking.click', true)) {
             return $html;
         }
 
@@ -43,9 +43,9 @@ class TrackingUrlService
         );
     }
 
-    public function injectTrackingPixel(string $html, CampaignSend $send): string
+    public function injectTrackingPixel(string $html, CampaignDelivery $send): string
     {
-        if (! config('laravel-subscribers.tracking.open', true)) {
+        if (! config('kanpen.tracking.open', true)) {
             return $html;
         }
 
@@ -62,7 +62,7 @@ class TrackingUrlService
         return $html.$pixel;
     }
 
-    public function processHtml(string $html, CampaignSend $send): string
+    public function processHtml(string $html, CampaignDelivery $send): string
     {
         $html = $this->rewriteLinks($html, $send);
         $html = $this->injectTrackingPixel($html, $send);

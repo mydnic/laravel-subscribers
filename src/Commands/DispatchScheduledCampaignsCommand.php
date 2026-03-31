@@ -1,15 +1,15 @@
 <?php
 
-namespace Mydnic\Subscribers\Commands;
+namespace Mydnic\Kanpen\Commands;
 
 use Illuminate\Console\Command;
-use Mydnic\Subscribers\Actions\SendCampaignAction;
-use Mydnic\Subscribers\Enums\CampaignStatus;
-use Mydnic\Subscribers\Models\Campaign;
+use Mydnic\Kanpen\Actions\SendCampaignAction;
+use Mydnic\Kanpen\Enums\CampaignStatus;
+use Mydnic\Kanpen\Models\Campaign;
 
 class DispatchScheduledCampaignsCommand extends Command
 {
-    protected $signature = 'subscribers:dispatch-scheduled';
+    protected $signature = 'kanpen:dispatch-scheduled';
 
     protected $description = 'Dispatch all campaigns whose scheduled_at time has passed';
 

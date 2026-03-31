@@ -1,11 +1,11 @@
 <?php
 
-namespace Mydnic\Subscribers\Models;
+namespace Mydnic\Kanpen\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Mydnic\Subscribers\Enums\CampaignStatus;
+use Mydnic\Kanpen\Enums\CampaignStatus;
 
 class Campaign extends Model
 {
@@ -33,7 +33,7 @@ class Campaign extends Model
 
     public function sends(): HasMany
     {
-        return $this->hasMany(CampaignSend::class);
+        return $this->hasMany(CampaignDelivery::class);
     }
 
     public function isDraft(): bool

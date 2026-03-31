@@ -1,17 +1,17 @@
 <?php
 
-namespace Mydnic\Subscribers\Events;
+namespace Mydnic\Kanpen\Events;
 
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Mydnic\Subscribers\Models\CampaignSend;
+use Mydnic\Kanpen\Models\CampaignDelivery;
 
 class EmailLinkClicked
 {
     use Dispatchable, SerializesModels;
 
     public function __construct(
-        public readonly CampaignSend $send,
+        public readonly CampaignDelivery $send,
         public readonly string $url,
     ) {}
 }

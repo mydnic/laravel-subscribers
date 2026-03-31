@@ -1,6 +1,6 @@
-# Laravel Subscribers
+# Kanpen
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/mydnic/laravel-subscribers.svg)](https://packagist.org/packages/mydnic/laravel-subscribers)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/mydnic/kanpen.svg)](https://packagist.org/packages/mydnic/kanpen)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 [![PHP](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://php.net)
 [![Laravel](https://img.shields.io/badge/Laravel-10%20%7C%2011%20%7C%2012-red)](https://laravel.com)
@@ -68,17 +68,17 @@ A lightweight newsletter subscriber management package for Laravel. Handle subsc
 Install via Composer:
 
 ```bash
-composer require mydnic/laravel-subscribers
+composer require mydnic/kanpen
 ```
 
 The service provider is auto-discovered. Next, publish and run the migrations:
 
 ```bash
-php artisan vendor:publish --tag="subscribers-migrations"
+php artisan vendor:publish --tag="kanpen-migrations"
 php artisan migrate
 ```
 
-This creates three tables: `subscribers`, `campaigns`, and `campaign_sends`.
+This creates three tables: `subscribers`, `campaigns`, and `campaign_deliveries`.
 
 ---
 
@@ -87,15 +87,15 @@ This creates three tables: `subscribers`, `campaigns`, and `campaign_sends`.
 Publish the config file:
 
 ```bash
-php artisan vendor:publish --tag="subscribers-config"
+php artisan vendor:publish --tag="kanpen-config"
 ```
 
-This creates `config/laravel-subscribers.php`:
+This creates `config/kanpen.php`:
 
 ```php
 return [
     // Enable email verification (double opt-in)
-    'verify' => env('LARAVEL_SUBSCRIBERS_VERIFY', false),
+    'verify' => env('KANPEN_VERIFY', false),
 
     // Named route to redirect to after web form submission
     'redirect_url' => 'home',
@@ -120,7 +120,7 @@ return [
             'name'  => env('MAIL_FROM_NAME', 'Newsletter'),
             'email' => env('MAIL_FROM_ADDRESS', 'newsletter@example.com'),
         ],
-        'queue'    => env('SUBSCRIBERS_QUEUE', 'default'),
+        'queue'    => env('KANPEN_QUEUE', 'default'),
         'schedule' => true, // auto-register the dispatch command on the scheduler
     ],
 
@@ -143,7 +143,7 @@ return [
 Add a form anywhere in your Blade views:
 
 ```blade
-<form action="{{ route('subscribers.store') }}" method="POST">
+<form action="{{ route('kanpen.store') }}" method="POST">
     @csrf
     <input type="email" name="email" placeholder="Your email address" required>
     <button type="submit">Subscribe</button>
@@ -163,7 +163,7 @@ On success the user is redirected to the route defined in `redirect_url` with a 
 A JSON endpoint is also available:
 
 ```
-POST /subscribers-api/subscriber
+POST /kanpen-api/subscriber
 Content-Type: application/json
 
 { "email": "someone@example.com" }
@@ -181,7 +181,7 @@ Duplicate emails return a `422 Unprocessable Entity` with a validation error.
 Add the `CanSubscribe` trait to any Eloquent model that has an `email` attribute:
 
 ```php
-use Mydnic\Subscribers\Traits\CanSubscribe;
+use Mydnic\Kanpen\Traits\CanSubscribe;
 
 class User extends Authenticatable
 {
@@ -201,7 +201,7 @@ If `verify` is enabled in config, `subscribe()` automatically sends the verifica
 
 ### Email Verification
 
-Set `LARAVEL_SUBSCRIBERS_VERIFY=true` in your `.env` (or set `'verify' => true` in config) to enable double opt-in. When enabled:
+Set `KANPEN_VERIFY=true` in your `.env` (or set `'verify' => true` in config) to enable double opt-in. When enabled:
 
 - Subscribers are saved immediately but are **not considered active** until they click the verification link.
 - A verification email is sent automatically on `subscribe()` or web form submission.
@@ -209,7 +209,7 @@ Set `LARAVEL_SUBSCRIBERS_VERIFY=true` in your `.env` (or set `'verify' => true` 
 
 You can customise every line of the verification email in the `mail.verify` config key.
 
-The verification route is `GET /subscribers/verify/{id}/{hash}` — this is handled automatically.
+The verification route is `GET /kanpen/verify/{id}/{hash}` — this is handled automatically.
 
 ### Unsubscribing
 
@@ -219,7 +219,7 @@ Every subscriber gets a unique random `unsubscribe_token` generated automaticall
 <a href="{{ $subscriber->getUnsubscribeUrl() }}">Unsubscribe</a>
 ```
 
-This generates a URL like `/subscribers/unsubscribe/Xk9mP...` (64-char opaque token). The subscriber record is soft-deleted, and the user sees the unsubscribe confirmation page (which you can publish and customise — see [Publishing Assets](#publishing-assets)).
+This generates a URL like `/kanpen/unsubscribe/Xk9mP...` (64-char opaque token). The subscriber record is soft-deleted, and the user sees the unsubscribe confirmation page (which you can publish and customise — see [Publishing Assets](#publishing-assets)).
 
 The token is also injected automatically into all campaign emails via the default `base.blade.php` layout, so you don't need to add it manually to campaigns.
 
@@ -234,7 +234,7 @@ The token is also injected automatically into all campaign emails via the defaul
 Use the `Campaign` model directly:
 
 ```php
-use Mydnic\Subscribers\Models\Campaign;
+use Mydnic\Kanpen\Models\Campaign;
 
 $campaign = Campaign::create([
     'name'         => 'March Newsletter',
@@ -253,8 +253,8 @@ Campaigns are created in `draft` status and are not sent until you explicitly tr
 Inject or resolve the `SendCampaignAction` and call `execute()`:
 
 ```php
-use Mydnic\Subscribers\Actions\SendCampaignAction;
-use Mydnic\Subscribers\Models\Campaign;
+use Mydnic\Kanpen\Actions\SendCampaignAction;
+use Mydnic\Kanpen\Models\Campaign;
 
 $campaign = Campaign::find(1);
 
@@ -265,7 +265,7 @@ This dispatches a queued job that:
 
 1. Sets the campaign status to `sending`
 2. Chunks through all (verified) subscribers
-3. Creates a `CampaignSend` record with a unique tracking token per subscriber
+3. Creates a `CampaignDelivery` record with a unique tracking token per subscriber
 4. Dispatches an individual queued job per subscriber that sends the email
 5. Sets the status to `sent` once all jobs are dispatched
 
@@ -280,7 +280,7 @@ php artisan queue:work
 Set `scheduled_at` on a campaign to send it at a specific time in the future:
 
 ```php
-use Mydnic\Subscribers\Models\Campaign;
+use Mydnic\Kanpen\Models\Campaign;
 
 $campaign = Campaign::create([
     'name'         => 'March Newsletter',
@@ -294,10 +294,10 @@ The campaign stays in `draft` status and is sent automatically when its `schedul
 
 #### How It Works
 
-The package registers the `subscribers:dispatch-scheduled` Artisan command on your application scheduler and runs it every minute:
+The package registers the `kanpen:dispatch-scheduled` Artisan command on your application scheduler and runs it every minute:
 
 ```
-subscribers:dispatch-scheduled
+kanpen:dispatch-scheduled
 ```
 
 This command queries for all `draft` campaigns whose `scheduled_at` is in the past and calls `SendCampaignAction::execute()` on each of them. Internally this dispatches `SendCampaignJob` to your configured queue — the same path as an immediate send.
@@ -312,7 +312,7 @@ This command queries for all `draft` campaigns whose `scheduled_at` is in the pa
 If you prefer to schedule the command yourself (e.g. less frequently, or with a specific environment condition), set `schedule` to `false` in config and add the command manually in your `Console/Kernel.php` (Laravel 10) or `bootstrap/app.php` (Laravel 11+):
 
 ```php
-// config/laravel-subscribers.php
+// config/kanpen.php
 'campaigns' => [
     'schedule' => false,
 ],
@@ -321,7 +321,7 @@ If you prefer to schedule the command yourself (e.g. less frequently, or with a 
 ```php
 // bootstrap/app.php (Laravel 11+)
 ->withSchedule(function (Schedule $schedule) {
-    $schedule->command('subscribers:dispatch-scheduled')->everyFiveMinutes();
+    $schedule->command('kanpen:dispatch-scheduled')->everyFiveMinutes();
 })
 ```
 
@@ -344,7 +344,7 @@ Your view receives these variables:
 | Variable      | Type           | Description                          |
 |---------------|----------------|--------------------------------------|
 | `$campaign`   | `Campaign`     | The campaign model                   |
-| `$send`       | `CampaignSend` | The per-subscriber send record       |
+| `$send`       | `CampaignDelivery` | The per-subscriber send record       |
 | `$subscriber` | `Subscriber`   | The subscriber receiving this email  |
 
 Example view:
@@ -366,22 +366,22 @@ Tracking (open pixel and link rewriting) is applied automatically to the rendere
 
 ### Campaign API
 
-A full REST API for managing campaigns is available under `/subscribers-api/campaigns`. The middleware protecting these routes defaults to `['api']` and is configurable via `campaigns.middleware` in config.
+A full REST API for managing campaigns is available under `/kanpen-api/campaigns`. The middleware protecting these routes defaults to `['api']` and is configurable via `campaigns.middleware` in config.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/subscribers-api/campaigns` | List all campaigns (paginated) |
-| `POST` | `/subscribers-api/campaigns` | Create a new campaign |
-| `GET` | `/subscribers-api/campaigns/{id}` | Get campaign details + stats |
-| `PUT` | `/subscribers-api/campaigns/{id}` | Update a draft campaign |
-| `DELETE` | `/subscribers-api/campaigns/{id}` | Soft-delete a campaign |
-| `POST` | `/subscribers-api/campaigns/{id}/send` | Dispatch the send job |
-| `POST` | `/subscribers-api/campaigns/{id}/test` | Send a test copy to one address |
+| `GET` | `/kanpen-api/campaigns` | List all campaigns (paginated) |
+| `POST` | `/kanpen-api/campaigns` | Create a new campaign |
+| `GET` | `/kanpen-api/campaigns/{id}` | Get campaign details + stats |
+| `PUT` | `/kanpen-api/campaigns/{id}` | Update a draft campaign |
+| `DELETE` | `/kanpen-api/campaigns/{id}` | Soft-delete a campaign |
+| `POST` | `/kanpen-api/campaigns/{id}/send` | Dispatch the send job |
+| `POST` | `/kanpen-api/campaigns/{id}/test` | Send a test copy to one address |
 
 **Create a campaign:**
 
 ```bash
-curl -X POST /subscribers-api/campaigns \
+curl -X POST /kanpen-api/campaigns \
   -H "Content-Type: application/json" \
   -d '{
     "name": "April Newsletter",
@@ -408,12 +408,12 @@ curl -X POST /subscribers-api/campaigns \
 **Send a test email:**
 
 ```bash
-curl -X POST /subscribers-api/campaigns/1/test \
+curl -X POST /kanpen-api/campaigns/1/test \
   -H "Content-Type: application/json" \
   -d '{ "email": "you@example.com" }'
 ```
 
-The email is sent immediately (not queued) as an exact copy of what subscribers would receive — same subject, same content, same tracking links (though the token won't exist in the database so opens/clicks won't be recorded). Does not create any `CampaignSend` records or alter the campaign's status or counts. Works for campaigns in any status — useful for previewing already-sent campaigns too.
+The email is sent immediately (not queued) as an exact copy of what subscribers would receive — same subject, same content, same tracking links (though the token won't exist in the database so opens/clicks won't be recorded). Does not create any `CampaignDelivery` records or alter the campaign's status or counts. Works for campaigns in any status — useful for previewing already-sent campaigns too.
 
 To add authentication to campaign routes, update the middleware in config:
 
@@ -433,13 +433,13 @@ When a campaign is sent, the package automatically processes every email's HTML 
 
 1. **Open tracking** — a 1×1 transparent GIF pixel is injected just before `</body>`:
    ```html
-   <img src="https://yourapp.com/subscribers/tracking/open/{token}" width="1" height="1" style="display:none;" />
+   <img src="https://yourapp.com/kanpen/tracking/open/{token}" width="1" height="1" style="display:none;" />
    ```
-   When a mail client loads the pixel, `opened_at` is set and `open_count` is incremented on the `CampaignSend` record.
+   When a mail client loads the pixel, `opened_at` is set and `open_count` is incremented on the `CampaignDelivery` record.
 
 2. **Click tracking** — every `<a href="...">` in the email is rewritten to go through a redirect proxy:
    ```
-   /subscribers/tracking/click/{token}?url=<base64-encoded-original-url>
+   /kanpen/tracking/click/{token}?url=<base64-encoded-original-url>
    ```
    When a subscriber clicks, the original URL is decoded, `clicked_at` is set, and the click is appended to `click_log` before the redirect.
 
@@ -450,7 +450,7 @@ Both tracking routes are public and do not require authentication. `mailto:` and
 You can disable tracking globally or individually:
 
 ```php
-// config/laravel-subscribers.php
+// config/kanpen.php
 'tracking' => [
     'enabled' => false, // disables all tracking
     'open'    => false, // disables open pixel only
@@ -475,8 +475,8 @@ Clicks to domains not on the list return a `403` response.
 Listen to tracking events in your `EventServiceProvider`:
 
 ```php
-use Mydnic\Subscribers\Events\EmailOpened;
-use Mydnic\Subscribers\Events\EmailLinkClicked;
+use Mydnic\Kanpen\Events\EmailOpened;
+use Mydnic\Kanpen\Events\EmailLinkClicked;
 
 protected $listen = [
     EmailOpened::class => [
@@ -488,7 +488,7 @@ protected $listen = [
 ];
 ```
 
-Both events carry the `CampaignSend` model (which has the `campaign`, `subscriber`, and all tracking timestamps).
+Both events carry the `CampaignDelivery` model (which has the `campaign`, `subscriber`, and all tracking timestamps).
 
 ---
 
@@ -501,7 +501,7 @@ You can automatically keep your application's users in sync with the subscribers
 Add the `HasNewsletterSubscription` trait to your `User` model. It hooks into Eloquent's `saved` and `deleted` events to mirror the subscription state automatically.
 
 ```php
-use Mydnic\Subscribers\Traits\HasNewsletterSubscription;
+use Mydnic\Kanpen\Traits\HasNewsletterSubscription;
 
 class User extends Authenticatable
 {
@@ -557,16 +557,16 @@ $user->syncSubscriberRecord();
 
 ### Artisan Sync Command
 
-To sync your existing users in bulk (e.g. after adding the trait to an app that already has users), use the `subscribers:sync` command:
+To sync your existing users in bulk (e.g. after adding the trait to an app that already has users), use the `kanpen:sync` command:
 
 ```bash
-php artisan subscribers:sync "App\Models\User"
+php artisan kanpen:sync "App\Models\User"
 ```
 
 This subscribes every user in the table. To only sync users that have opted in:
 
 ```bash
-php artisan subscribers:sync "App\Models\User" \
+php artisan kanpen:sync "App\Models\User" \
     --filter=subscribed_to_newsletter \
     --filter-value=1
 ```
@@ -574,7 +574,7 @@ php artisan subscribers:sync "App\Models\User" \
 To also **remove** subscribers whose users no longer match the filter:
 
 ```bash
-php artisan subscribers:sync "App\Models\User" \
+php artisan kanpen:sync "App\Models\User" \
     --filter=subscribed_to_newsletter \
     --filter-value=1 \
     --unsubscribe-removed
@@ -592,14 +592,14 @@ php artisan subscribers:sync "App\Models\User" \
 
 ## Events Reference
 
-All events live in the `Mydnic\Subscribers\Events` namespace.
+All events live in the `Mydnic\Kanpen\Events` namespace.
 
 | Event | Fired When | Properties |
 |-------|-----------|------------|
 | `SubscriberCreated` | A new subscriber is saved | `$subscriber` |
 | `SubscriberDeleted` | A subscriber is deleted | `$subscriber` |
 | `SubscriberVerified` | A subscriber verifies their email | `$subscriber` |
-| `CampaignSending` | A campaign's send job starts | `$campaign` |
+| `CampaignDeliverying` | A campaign's send job starts | `$campaign` |
 | `CampaignSent` | All subscriber jobs are dispatched | `$campaign` |
 | `EmailOpened` | A tracking pixel is loaded | `$send` |
 | `EmailLinkClicked` | A tracked link is clicked | `$send`, `$url` |
@@ -613,13 +613,13 @@ All events live in the `Mydnic\Subscribers\Events` namespace.
 Publish and customise the email layout and unsubscribe page:
 
 ```bash
-php artisan vendor:publish --tag="subscribers-views"
+php artisan vendor:publish --tag="kanpen-views"
 ```
 
-Files are copied to `resources/views/vendor/laravel-subscribers/`:
+Files are copied to `resources/views/vendor/kanpen/`:
 
 ```
-resources/views/vendor/laravel-subscribers/
+resources/views/vendor/kanpen/
 ├── mail/
 │   ├── layouts/
 │   │   └── base.blade.php     ← email HTML shell (header, footer, unsubscribe link)
@@ -635,13 +635,13 @@ Laravel's view resolution picks up your published files automatically — no con
 A ready-made Vue subscription form component is available:
 
 ```bash
-php artisan vendor:publish --tag="subscribers-vue-component"
+php artisan vendor:publish --tag="kanpen-vue-component"
 ```
 
-Files are copied to `resources/js/components/Subscribers/`. Register and use the component in your application:
+Files are copied to `resources/js/components/Kanpen/`. Register and use the component in your application:
 
 ```js
-import SubscriberForm from './components/Subscribers/SubscriberForm.vue'
+import SubscriberForm from './components/Kanpen/SubscriberForm.vue'
 
 app.component('subscriber-form', SubscriberForm)
 ```
@@ -657,7 +657,7 @@ app.component('subscriber-form', SubscriberForm)
 The package ships with a ready-to-use Laravel Nova resource. Register it in your `NovaServiceProvider`:
 
 ```php
-use Mydnic\Subscribers\Nova\Resources\Subscriber;
+use Mydnic\Kanpen\Nova\Resources\Subscriber;
 
 public function resources(): array
 {
@@ -684,16 +684,16 @@ Filament must be installed and configured in your application first. See the [Fi
 
 ### Registering the Plugin
 
-Add `SubscribersPlugin` to your Filament panel provider:
+Add `KanpenPlugin` to your Filament panel provider:
 
 ```php
-use Mydnic\Subscribers\Filament\SubscribersPlugin;
+use Mydnic\Kanpen\Filament\KanpenPlugin;
 
 public function panel(Panel $panel): Panel
 {
     return $panel
         ->plugins([
-            SubscribersPlugin::make(),
+            KanpenPlugin::make(),
         ]);
 }
 ```
@@ -739,7 +739,7 @@ Widgets are registered automatically and appear on your Filament dashboard.
 You can toggle individual resources and widgets:
 
 ```php
-SubscribersPlugin::make()
+KanpenPlugin::make()
     ->subscriberResource()          // default: true
     ->campaignResource()            // default: true
     ->subscribersOverviewWidget()   // default: true
@@ -749,7 +749,7 @@ SubscribersPlugin::make()
 Pass `false` to disable any of them:
 
 ```php
-SubscribersPlugin::make()
+KanpenPlugin::make()
     ->newSubscribersChartWidget(false) // hide the chart widget
 ```
 
@@ -758,8 +758,8 @@ SubscribersPlugin::make()
 Both resources are placed under a **Newsletter** navigation group. To move them elsewhere, publish and extend the resource classes or override the navigation group in a service provider:
 
 ```php
-use Mydnic\Subscribers\Filament\Resources\SubscriberResource;
-use Mydnic\Subscribers\Filament\Resources\CampaignResource;
+use Mydnic\Kanpen\Filament\Resources\SubscriberResource;
+use Mydnic\Kanpen\Filament\Resources\CampaignResource;
 
 SubscriberResource::navigationGroup('Marketing');
 CampaignResource::navigationGroup('Marketing');
@@ -780,7 +780,7 @@ v2 is a breaking release. The following changes require attention:
 
 **Model namespace**
 
-The `Subscriber` model has moved from `Mydnic\Subscribers\Subscriber` to `Mydnic\Subscribers\Models\Subscriber`.
+The `Subscriber` model has moved from `Mydnic\Subscribers\Subscriber` to `Mydnic\Kanpen\Models\Subscriber`.
 
 The old class still exists as a deprecated alias, so existing code continues to work, but you should update your imports:
 
@@ -789,15 +789,15 @@ The old class still exists as a deprecated alias, so existing code continues to 
 use Mydnic\Subscribers\Subscriber;
 
 // After
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Models\Subscriber;
 ```
 
 **Migrations**
 
-Publish and run the new migrations to create the `campaigns` and `campaign_sends` tables:
+Publish and run the new migrations to create the `campaigns` and `campaign_deliveries` tables:
 
 ```bash
-php artisan vendor:publish --tag="subscribers-migrations"
+php artisan vendor:publish --tag="kanpen-migrations"
 php artisan migrate
 ```
 

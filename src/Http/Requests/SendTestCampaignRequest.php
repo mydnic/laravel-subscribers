@@ -1,6 +1,6 @@
 <?php
 
-namespace Mydnic\Subscribers\Http\Requests;
+namespace Mydnic\Kanpen\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 

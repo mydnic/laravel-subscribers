@@ -1,6 +1,6 @@
 <?php
 
-namespace Mydnic\Subscribers\Filament\Resources\CampaignResource\Pages;
+namespace Mydnic\Kanpen\Filament\Resources\CampaignResource\Pages;
 
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -8,9 +8,9 @@ use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
-use Mydnic\Subscribers\Actions\SendCampaignAction;
-use Mydnic\Subscribers\Actions\SendTestCampaignAction;
-use Mydnic\Subscribers\Filament\Resources\CampaignResource;
+use Mydnic\Kanpen\Actions\SendCampaignAction;
+use Mydnic\Kanpen\Actions\SendTestCampaignAction;
+use Mydnic\Kanpen\Filament\Resources\CampaignResource;
 
 class ViewCampaign extends ViewRecord
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Mydnic\Subscribers\Nova\Metrics;
+namespace Mydnic\Kanpen\Nova\Metrics;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Metrics\Value;
-use Mydnic\Subscribers\Subscriber;
+use Mydnic\Kanpen\Models\Subscriber;
 
 class NewSubscribers extends Value
 {

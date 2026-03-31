@@ -1,6 +1,6 @@
 <?php
 
-namespace Mydnic\Subscribers\Exceptions;
+namespace Mydnic\Kanpen\Exceptions;
 
 use Exception;
 

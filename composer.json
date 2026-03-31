@@ -1,5 +1,5 @@
 {
-    "name": "mydnic/laravel-subscribers",
+    "name": "mydnic/kanpen",
     "description": "Easily Manage Internal Newsletter Subscribers in Laravel — with campaigns, mail sending, and tracking",
     "keywords": [
         "laravel",
@@ -10,7 +10,7 @@
         "tracking"
     ],
     "license": "MIT",
-    "homepage": "https://github.com/mydnic/laravel-subscribers",
+    "homepage": "https://github.com/mydnic/kanpen",
     "authors": [
         {
             "name": "Clément Rigo",
@@ -22,7 +22,7 @@
         "laravel/framework": ">=10.0"
     },
     "suggest": {
-        "filament/filament": "Required to use the Filament admin panel integration (^3.0|^4.0|^5.0)"
+        "filament/filament": "Required to use the Filament admin panel integration"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.5|^11.0",
@@ -31,18 +31,18 @@
     },
     "autoload": {
         "psr-4": {
-            "Mydnic\\Subscribers\\": "src/"
+            "Mydnic\\Kanpen\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Mydnic\\Subscribers\\Test\\": "tests"
+            "Mydnic\\Kanpen\\Test\\": "tests"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Mydnic\\Subscribers\\SubscribersServiceProvider"
+                "Mydnic\\Kanpen\\KanpenServiceProvider"
             ]
         }
     },

@@ -1,14 +1,14 @@
 <?php
 
-namespace Mydnic\Subscribers\Http\Controllers;
+namespace Mydnic\Kanpen\Http\Controllers;
 
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use Mydnic\Subscribers\Events\SubscriberVerified;
-use Mydnic\Subscribers\Exceptions\SubscriberVerificationException;
-use Mydnic\Subscribers\Http\Requests\StoreSubscriberRequest;
-use Mydnic\Subscribers\Http\Requests\VerifySubscriberRequest;
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Events\SubscriberVerified;
+use Mydnic\Kanpen\Exceptions\SubscriberVerificationException;
+use Mydnic\Kanpen\Http\Requests\StoreSubscriberRequest;
+use Mydnic\Kanpen\Http\Requests\VerifySubscriberRequest;
+use Mydnic\Kanpen\Models\Subscriber;
 
 class SubscriberController extends Controller
 {
@@ -16,14 +16,14 @@ class SubscriberController extends Controller
     {
         $subscriber = Subscriber::create($request->validated());
 
-        if (config('laravel-subscribers.verify')) {
+        if (config('kanpen.verify')) {
             $subscriber->sendEmailVerificationNotification();
 
-            return redirect()->route(config('laravel-subscribers.redirect_url'))
+            return redirect()->route(config('kanpen.redirect_url'))
                 ->with('subscribed', __('Please verify your email address!'));
         }
 
-        return redirect()->route(config('laravel-subscribers.redirect_url'))
+        return redirect()->route(config('kanpen.redirect_url'))
             ->with('subscribed', __('You are successfully subscribed to our list!'));
     }
 
@@ -35,7 +35,7 @@ class SubscriberController extends Controller
             $subscriber->delete();
         }
 
-        return view('laravel-subscribers::subscriber.deleted');
+        return view('kanpen::subscriber.deleted');
     }
 
     public function verify(VerifySubscriberRequest $request)
@@ -53,7 +53,7 @@ class SubscriberController extends Controller
         if ($subscriber->hasVerifiedEmail()) {
             return $request->wantsJson()
                 ? new Response('', 204)
-                : redirect()->route(config('laravel-subscribers.redirect_url'));
+                : redirect()->route(config('kanpen.redirect_url'));
         }
 
         if ($subscriber->markEmailAsVerified()) {
@@ -62,7 +62,7 @@ class SubscriberController extends Controller
 
         return $request->wantsJson()
             ? new Response('', 204)
-            : redirect()->route(config('laravel-subscribers.redirect_url'))
+            : redirect()->route(config('kanpen.redirect_url'))
                 ->with('verified', __('You are successfully subscribed to our list!'));
     }
 }

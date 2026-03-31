@@ -1,8 +1,8 @@
 <?php
 
-namespace Mydnic\Subscribers\Traits;
+namespace Mydnic\Kanpen\Traits;
 
-use Mydnic\Subscribers\Models\Subscriber;
+use Mydnic\Kanpen\Models\Subscriber;
 
 trait CanSubscribe
 {
@@ -18,7 +18,7 @@ trait CanSubscribe
             $subscriber = Subscriber::create(['email' => $this->email]);
         }
 
-        if (config('laravel-subscribers.verify') && ! $subscriber->hasVerifiedEmail()) {
+        if (config('kanpen.verify') && ! $subscriber->hasVerifiedEmail()) {
             $subscriber->sendEmailVerificationNotification();
         }
     }

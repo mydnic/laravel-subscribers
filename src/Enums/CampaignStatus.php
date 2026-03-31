@@ -1,6 +1,6 @@
 <?php
 
-namespace Mydnic\Subscribers\Enums;
+namespace Mydnic\Kanpen\Enums;
 
 enum CampaignStatus: string
 {

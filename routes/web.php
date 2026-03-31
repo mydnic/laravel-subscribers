@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Mydnic\Subscribers\Http\Controllers\SubscriberController;
-use Mydnic\Subscribers\Http\Controllers\TrackingController;
+use Mydnic\Kanpen\Http\Controllers\SubscriberController;
+use Mydnic\Kanpen\Http\Controllers\TrackingController;
 
 Route::post('subscriber', [SubscriberController::class, 'store'])->name('store');
 Route::get('unsubscribe/{token}', [SubscriberController::class, 'unsubscribeByToken'])->name('unsubscribe');

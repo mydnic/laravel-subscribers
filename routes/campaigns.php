@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Mydnic\Subscribers\Http\Controllers\Api\CampaignController;
+use Mydnic\Kanpen\Http\Controllers\Api\CampaignController;
 
 Route::apiResource('campaigns', CampaignController::class);
 Route::post('campaigns/{campaign}/send', [CampaignController::class, 'send'])->name('campaigns.send');

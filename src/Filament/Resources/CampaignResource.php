@@ -1,6 +1,6 @@
 <?php
 
-namespace Mydnic\Subscribers\Filament\Resources;
+namespace Mydnic\Kanpen\Filament\Resources;
 
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\RichEditor;
@@ -21,14 +21,14 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Mydnic\Subscribers\Actions\SendCampaignAction;
-use Mydnic\Subscribers\Actions\SendTestCampaignAction;
-use Mydnic\Subscribers\Enums\CampaignStatus;
-use Mydnic\Subscribers\Filament\Resources\CampaignResource\Pages\CreateCampaign;
-use Mydnic\Subscribers\Filament\Resources\CampaignResource\Pages\EditCampaign;
-use Mydnic\Subscribers\Filament\Resources\CampaignResource\Pages\ListCampaigns;
-use Mydnic\Subscribers\Filament\Resources\CampaignResource\Pages\ViewCampaign;
-use Mydnic\Subscribers\Models\Campaign;
+use Mydnic\Kanpen\Actions\SendCampaignAction;
+use Mydnic\Kanpen\Actions\SendTestCampaignAction;
+use Mydnic\Kanpen\Enums\CampaignStatus;
+use Mydnic\Kanpen\Filament\Resources\CampaignResource\Pages\CreateCampaign;
+use Mydnic\Kanpen\Filament\Resources\CampaignResource\Pages\EditCampaign;
+use Mydnic\Kanpen\Filament\Resources\CampaignResource\Pages\ListCampaigns;
+use Mydnic\Kanpen\Filament\Resources\CampaignResource\Pages\ViewCampaign;
+use Mydnic\Kanpen\Models\Campaign;
 
 class CampaignResource extends Resource
 {
@@ -72,12 +72,12 @@ class CampaignResource extends Resource
                     ->columnSpanFull(),
 
                 TextInput::make('from_name')
-                    ->placeholder(config('laravel-subscribers.campaigns.from.name'))
+                    ->placeholder(config('kanpen.campaigns.from.name'))
                     ->maxLength(255),
 
                 TextInput::make('from_email')
                     ->email()
-                    ->placeholder(config('laravel-subscribers.campaigns.from.email'))
+                    ->placeholder(config('kanpen.campaigns.from.email'))
                     ->maxLength(255),
 
                 TextInput::make('reply_to')
