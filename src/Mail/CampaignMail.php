@@ -40,34 +40,22 @@ class CampaignMail extends Mailable
 
     public function content(): Content
     {
-        return new Content(
-            view: 'kanpen::mail.campaign',
-            with: [
-                'campaign' => $this->campaign,
-                'send' => $this->send,
-                'subscriber' => $this->send->subscriber,
-                'contentHtml' => $this->campaign->content_html ?? '',
-            ],
-        );
+        $html = view('kanpen::mail.campaign', [
+            'campaign' => $this->campaign,
+            'send' => $this->send,
+            'subscriber' => $this->send->subscriber,
+            'contentHtml' => $this->campaign->content_html ?? '',
+        ])->render();
+
+        if (config('kanpen.tracking.enabled', true)) {
+            $html = app(TrackingUrlService::class)->processHtml($html, $this->send);
+        }
+
+        return new Content(htmlString: $html);
     }
 
     public function build(): static
     {
         return $this;
-    }
-
-    /**
-     * Process the rendered HTML to inject tracking before the mail is sent.
-     */
-    public function render(): string
-    {
-        $html = parent::render();
-
-        if (config('kanpen.tracking.enabled', true)) {
-            $trackingService = app(TrackingUrlService::class);
-            $html = $trackingService->processHtml($html, $this->send);
-        }
-
-        return $html;
     }
 }
