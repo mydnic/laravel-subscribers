@@ -590,9 +590,7 @@ Files are copied to `resources/views/vendor/kanpen/`:
 ```
 resources/views/vendor/kanpen/
 ├── mail/
-│   ├── layouts/
-│   │   └── base.blade.php     ← email HTML shell (header, footer, unsubscribe link)
-│   └── campaign.blade.php     ← default campaign body template
+│   └── campaign.blade.php     ← email template (full-doc passthrough or default HTML wrapper)
 └── subscriber/
     └── deleted.blade.php      ← unsubscribe confirmation page
 ```
