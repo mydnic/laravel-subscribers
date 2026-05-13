@@ -18,17 +18,7 @@ class Campaign extends Model
         $this->setTable(config('kanpen.tables.campaigns'));
     }
 
-    protected $fillable = [
-        'name',
-        'subject',
-        'from_name',
-        'from_email',
-        'reply_to',
-        'content_html',
-        'sent_at',
-        'status',
-        'scheduled_at',
-    ];
+    protected $guarded = ['id'];
 
     protected $casts = [
         'status' => CampaignStatus::class,
