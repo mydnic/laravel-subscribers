@@ -599,6 +599,26 @@ resources/views/vendor/kanpen/
 
 Laravel's view resolution picks up your published files automatically — no config change needed.
 
+## Filament Integration
+
+A first-party Filament plugin is available at **[mydnic/kanpen-filament-plugin](https://github.com/mydnic/kanpen-filament-plugin)**.
+
+It adds a full admin UI on top of Kanpen:
+
+- **Subscribers** — list, search, soft delete, restore, and view a subscriber's full campaign history with open and click stats per campaign
+- **Campaigns** — create, edit, send, schedule, and preview campaigns; per-campaign stats (sent, opens, clicks); send-test action
+- **Email Templates** — reusable templates with a drag-and-drop builder ([Unlayer](https://unlayer.com)) or a plain Markdown editor; load a template into any campaign with one click
+- **Email builder** — Unlayer drag-and-drop editor embedded in the Filament form; import any design JSON from [unlayer.com/templates](https://unlayer.com/templates)
+- **Markdown editor** — write emails in Markdown and have them automatically wrapped in your app's default Laravel mail theme
+
+```bash
+composer require mydnic/kanpen-filament-plugin
+```
+
+See the [plugin README](https://github.com/mydnic/kanpen-filament-plugin) for full installation and usage instructions.
+
+---
+
 ## Upgrading
 
 ### From v1.x to v2.x
