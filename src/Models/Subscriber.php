@@ -58,7 +58,11 @@ class Subscriber extends Model
 
     public function sendEmailVerificationNotification(): void
     {
-        $this->notify(new SubscriberVerifyEmail);
+        try {
+            $this->notify(new SubscriberVerifyEmail);
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     public function getEmailForVerification(): string
