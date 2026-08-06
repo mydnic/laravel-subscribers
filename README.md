@@ -3,7 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mydnic/kanpen.svg)](https://packagist.org/packages/mydnic/kanpen)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 [![PHP](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://php.net)
-[![Laravel](https://img.shields.io/badge/Laravel-10%20%7C%2011%20%7C%2012-red)](https://laravel.com)
+[![Laravel](https://img.shields.io/badge/Laravel-12%20%7C%2013-red)](https://laravel.com)
 [![Filament](https://img.shields.io/badge/Filament-3%20%7C%204%20%7C%205-orange)](https://filamentphp.com)
 
 A lightweight newsletter subscriber management package for Laravel. Handle subscriptions, send campaigns, track opens and clicks — all without a third-party service.
