@@ -64,6 +64,36 @@ class SubscriberTest extends TestCase
     }
 
     #[Test]
+    public function it_rejects_an_email_with_a_non_existent_domain(): void
+    {
+        // .invalid is reserved by RFC 2606 and is guaranteed to never resolve
+        $response = $this->postJson('/kanpen-api/subscriber', [
+            'email' => 'someone@this-domain-does-not-exist.invalid',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['email']);
+        $this->assertEquals(0, Subscriber::count());
+    }
+
+    #[Test]
+    public function it_swallows_notification_failures_when_sending_verification_email(): void
+    {
+        $subscriber = new class extends Subscriber
+        {
+            public function notify($instance): void
+            {
+                throw new \RuntimeException('Cloudflare rejected the address');
+            }
+        };
+        $subscriber->forceFill(['email' => 'some@email.com']);
+
+        $subscriber->sendEmailVerificationNotification();
+
+        $this->assertTrue(true);
+    }
+
+    #[Test]
     public function it_unsubscribes_via_token(): void
     {
         Event::fake([SubscriberDeleted::class]);
