@@ -5,6 +5,7 @@ namespace Mydnic\Kanpen\Test;
 use Illuminate\Support\Facades\Event;
 use Mydnic\Kanpen\Events\SubscriberCreated;
 use Mydnic\Kanpen\Events\SubscriberDeleted;
+use Mydnic\Kanpen\Events\SubscriberVerified;
 use Mydnic\Kanpen\Models\Subscriber;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -115,5 +116,32 @@ class SubscriberTest extends TestCase
         $response = $this->get('/kanpen/unsubscribe/totally-fake-token');
 
         $response->assertStatus(200);
+    }
+
+    #[Test]
+    public function it_verifies_a_subscriber_with_a_valid_hash(): void
+    {
+        Event::fake([SubscriberVerified::class]);
+
+        $subscriber = Subscriber::create(['email' => 'some@email.com']);
+        $hash = sha1($subscriber->getEmailForVerification());
+
+        $response = $this->get("/kanpen/verify/{$subscriber->id}/{$hash}");
+
+        $response->assertRedirect();
+        $this->assertTrue($subscriber->fresh()->hasVerifiedEmail());
+
+        Event::assertDispatched(SubscriberVerified::class);
+    }
+
+    #[Test]
+    public function it_returns_404_for_an_invalid_verification_hash(): void
+    {
+        $subscriber = Subscriber::create(['email' => 'some@email.com']);
+
+        $response = $this->get("/kanpen/verify/{$subscriber->id}/not-the-real-hash");
+
+        $response->assertStatus(404);
+        $this->assertFalse($subscriber->fresh()->hasVerifiedEmail());
     }
 }
